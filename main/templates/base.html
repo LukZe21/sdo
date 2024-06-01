@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css')}}"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+    {% if title %}
+        <title>Students Day Off - {{ title }}</title>
+    {% else %}
+        <title>Students Day Off</title>
+    {% endif %}
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navdiv">
+            <div class="logo"><a href="{{ url_for('main') }}">სახელი</a></div>
+        </div>
+        <div class="searchBar">
+            <a href="#"><i class="fas fa-search"></i></a>
+            <input type="text" placeholder="მოძებნე ღონისძიებები & ფასდაკლებები...">
+        </div>
+        
+        <div id="navbarElements">
+            <ul>
+                <li><a href="{{ url_for('main') }}">მთავარი</a></li>
+                <li><a href="{{ url_for('events_page') }}">ღონისძიებები</a></li>
+                <li><a href="{{ url_for('discounts_page') }}">ფასდაკლებები</a></li>
+                <li><a href="#">კონტაქტი</a></li>
+                <li><a href="#">ჩვენს შესახებ</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <div>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {%block content%}{% endblock content %}
+    </div>
+
+    <script src="{{url_for('static', filename='index.js')}}"></script>
+</body>
+</html>

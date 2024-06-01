@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+
+<form method="POST">
+    <select name="category">
+        <option name="all">ყველა</option>
+        <option name="entertainment">გართობა</option>
+        <option name="education">განათლება</option>
+        <option name="accessories">აქსესუარები</option>
+        <option name="Food & Drink">საკვები & სასმელი</option>
+        <option name="Clothes">ტანსაცმელი</option>
+    </select>
+    <button id="submit-button" type="submit">Submit</button>
+</form>
+{% for element in discount_elements %}
+<img src="static/imgs/DiscountnEventImages/{{element.img}}" alt="{{ element.name }}">
+<h2>{{element.name}}</h2>
+<p>{{ element.description }}</p>
+<p>{{ element.categories }}</p>
+{% endfor %}
+{% endblock content %}

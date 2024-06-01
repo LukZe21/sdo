@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block content %}
+<div id="mainBox">
+    <h1 id="webName">ვებსაიტის სახელი</h1>
+    <p id="aboutWeb">ვებსაიტის შესახებ ინფორმაცია</p>
+    
+    <div id="offersBox">
+        <div id="discountBox">
+            <h3 style="color: black;">კვირის საუკეთესო ფასდაკლებები</h3>
+            <ul>
+                <div id="content">
+                    <div id="leftBox">
+                        <a href="#"><div class="discountBoxElement">
+                            <img class="discountImg" src="static/imgs/mcdonald.png">
+                            <h6>McDonald</h6>
+                            <p>25% სტუდენტური ფასდაკლება</p>
+                        </div></a>
+                        <a href="#"><div class="discountBoxElement">
+                            <img class="discountImg" src="static/imgs/biblusi.png">
+                            <h6>Biblusi</h6>
+                            <p>50% სტუდენტური ფასდაკლება</p>
+                        </div></a>
+                        <a href="#"><div class="discountBoxElement">
+                            <img class="discountImg" src="static/imgs/beyo.png">
+                            <h6>BE • YO</h6>
+                            <p>25% სტუდენტური ფასდაკლება</p>
+                        </div></a>
+                    </div>
+
+                    <div id="rightBox">
+                        <a href="#"><div class="discountBoxElement">
+                            <img class="discountImg" src="static/imgs/wolt.png">
+                            <h6>Wolt</h6>
+                            <p>20% სტუდენტური ფასდაკლება</p>
+                        </div></a>
+                        <a href="#"><div class="discountBoxElement">
+                            <img class="discountImg" src="static/imgs/miniso.png">
+                            <h6>Miniso</h6>
+                            <p>50% სტუდენტური ფასდაკლება</p>
+                        </div></a>
+                        <a href="#"><div class="discountBoxElement">
+                            <img class="discountImg" src="static/imgs/glovo.png">
+                            <h6>Glovo</h6>
+                            <p>35% სტუდენტური ფასდაკლება</p>
+                        </div></a>
+                    </div>
+                </div>
+            </ul>
+        </div>
+
+        <div id="topEventsBox">
+            <h3>მომავალი ღონისძიებები</h3>
+            <div id="events">
+                <div id="topEvent1">
+                    <img class="eventImg" src="static/imgs/sdo.png" alt="">
+                </div>
+                <div id="topEvent2">
+                    <img class="eventImg" src="static/imgs/sxva_samkharo.png" alt="">
+                </div>
+                
+                <div id="topEvent3">
+                    <img class="eventImg" src="static/imgs/khvelis_festival.png" alt="">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="events-section">
+    <h1 class="section-title">პოპულარული სტუდენტური ფასდაკლებები</h1>
+    <p class="section-subtitle">არ გამოტოვო ტრენდული სტუდენტური შეთავაზებები</p>
+    <a href="{{ url_for('discounts_page') }}" class="view-more">ნახეთ მეტი ></a>
+    <div class="slider-container" id="discount-slider-container">
+        <button class="slider-btn prev-btn" onclick="slide('prev', 'discount-slider-container')">&#9664;</button>
+        <div class="slider">
+            {% for element in discount_elements %}
+                <a href="{{ url_for('discount_element', id=element.id) }}">
+                    <div class="slider-item">
+                        <img src="static/imgs/DiscountnEventImages/{{element.img}}" alt="{{ element.name }}">
+                        <h3>{{ element.condition }}</h3>
+                        <p id="discount-name">{{ element.name }}</p>
+                        <p class="categories">{{ element.categories }}</p>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+        <button class="slider-btn next-btn" onclick="slide('next', 'discount-slider-container')">&#9654;</button>
+    </div>
+    <br>
+    <br>
+    <h1 class="section-title">ღონისძიებები & ლექციები</h1>
+    <p class="section-subtitle">არ გამოტოვო არცერთი გასაოცარი შეხვედრა</p>
+    <a href="{{ url_for('events_page') }}" class="view-more">ნახეთ მეტი ></a>
+    <div class="slider-container" id="event-slider-container">
+        <button class="slider-btn prev-btn" onclick="slide('prev', 'event-slider-container')">&#9664;</button>
+        <div class="slider">
+            {% for element in event_elements %}
+                <a href="{{ url_for('event_element', id=element.id) }}">
+                    <div class="slider-item">
+                        <img src="static/imgs/DiscountnEventImages/{{element.img}}" alt="{{ element.name }}">
+                        <h3>{{ element.name }}</h3>
+                        <p class="categories">{{ element.categories }}</p>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+        <button class="slider-btn next-btn" onclick="slide('next', 'event-slider-container')">&#9654;</button>
+    </div>
+</section>
+
+{% endblock content %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<img src="static/imgs/DiscountnEventImages/ailab.jpg" alt="{{ event_info.img }}">
+<h2>{{event_info.name}}</h2>
+<p>{{ event_info.description }}</p>
+<p>{{ event_info.categories }}</p>
+<p>{{ event_info.start_date }}</p>
+<p>{{ event_info.end_date }}</p>
+<p>{{ event_info.event_hoster }}</p>
+<p>{{ event_info.location }}</p>
+<p>Duration: {{ event_duration }} Hours</p>
+
+{% if current_user.is_authenticated %}
+<a href="{{ url_for('update_event_element', id=event_info.id)}}" >Update</a>
+{% endif %}
+{% endblock content %}

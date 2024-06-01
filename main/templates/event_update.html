@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="form-section">
+    <h2>Modify Events</h2>
+
+    <h3>Existing Events</h3>
+        <ul>
+        {% for event in events %}
+            <li>{{ event }}</li> 
+        {% endfor %}
+        </ul>
+
+    <h3>Add New Event</h3>
+    <form method="POST" action="" enctype="multipart/form-data">
+        {{ event_form.hidden_tag() }}
+
+        {% for field in event_form if field.name != 'csrf_token' and field.name != 'submit' %}
+        <div class="form-group">
+            {{ field.label(class="form-control-label") }}
+            {{ field(class="form-control form-control-lg") }}
+            {% if field.errors %}
+                {% for error in field.errors %}
+                    <span class="error">[{{ error }}]</span>
+                {% endfor %}
+            {% endif %}
+        </div>
+        {% endfor %}
+        <div class="form-group">
+            {{ event_form.submit(class="btn") }}
+        </div>
+    </form>
+
+
+    <h3>Remove Event</h3>
+    <form action="{{ url_for('delete_event', id=event_id) }}" method="POST">
+        <input class="btn btn-danger" type="submit" value="Delete">
+    </form>
+</div>
+{% endblock content %}

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_user, logout_user, login_required
 from main.forms import DiscountElementForm, eventElementForm, LoginForm
 from main.modules import discountElement, eventElement, User
@@ -7,11 +7,13 @@ import os
 from main import db, app
 import random
 from datetime import datetime
-import time
+from main.auto_correction import process_text
+from main.search_system import search_query
 
 
-@app.route("/")
-@app.route("/home")
+
+@app.route("/", methods=['POST', 'GET'])
+@app.route("/home", methods=['POST', 'GET'])
 def main():
     discount_elements = discountElement.query.all()
     event_elements = eventElement.query.all()
@@ -20,9 +22,19 @@ def main():
     random.shuffle(discount_elements)
     random.shuffle(event_elements)
 
+    user_query = request.args.get('query')
+    if user_query:
+        processed_text = process_text(user_query)
+        search_results = search_query(processed_text, discount_elements, event_elements)
+        print(search_results)
+        return render_template('search_results.html', text=processed_text)
 
-    return render_template("index.html", discount_elements=discount_elements, event_elements=event_elements)
 
+    return render_template("index1.html", discount_elements=discount_elements, event_elements=event_elements)
+
+# @app.route("/search")
+# def search():
+#     return render_template('search_results.html', text=user_query)
 
 @app.route('/login_to_admin_page', methods=['GET', 'POST'])
 def login():
@@ -227,4 +239,3 @@ def events_page():
                     filtered_elements.append(event_element)
             return render_template('events_section.html', event_elements=filtered_elements)
     return render_template('events_section.html', event_elements=event_elements)
-

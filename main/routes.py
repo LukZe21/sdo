@@ -36,17 +36,15 @@ def main():
     random.shuffle(event_elements)
 
 
+    # email verification 
     if email_form.validate_on_submit():
         if email_form.email.data not in emails:
             send_activation_email(email_form.email.data)
             flash('A confirmation email has been sent to your email address.', 'success')
-        #     user_email = email(email=email_form.email.data)
-        #     db.session.add(user_email)
-        #     db.session.commit()
-        #     flash('Succesfully Subscribed', 'success')
         else:
             flash('Email has already subscribed', 'warning')
 
+    # search system
     user_query = request.args.get('query')
     if user_query:
         processed_text = process_text(user_query)
@@ -57,10 +55,8 @@ def main():
 
     return render_template("index1.html", discount_elements=discount_elements, event_elements=event_elements, email_form=email_form)
 
-# @app.route("/search")
-# def search():
-#     return render_template('search_results.html', text=user_query)
 
+# account activation
 @app.route('/activation/<token>')
 def activation_account(token):
     email_address = serializer.loads(token, salt='email-confirmation-salt', max_age=3600)
@@ -114,6 +110,7 @@ def add():
         db.session.add(discount_element)
         db.session.commit()
 
+        # if send to users via email is toggled emails will be sent to all users
         if discount_form.toggle.data:
             id = discountElement.query.filter_by(name=discount_form.name.data).first().id
 
@@ -144,9 +141,9 @@ def add():
         db.session.add(event_element)
         db.session.commit()
 
+        # if send to users via email is toggled emails will be sent to all users
         if event_form.toggle.data:
             id = eventElement.query.filter_by(name=event_form.name.data).first().id
-            print(id, emails)
             send_emails(category='event', id=id, name=event_form.name.data, 
                         start_date=event_form.start_date.data,
                         end_date=event_form.end_date.data,
@@ -181,7 +178,8 @@ def add():
     return render_template('add_elements.html', discount_form=discount_form, event_form=event_form)
 
 
-# Discount functionalities
+# All discount functionalities
+
 @app.route("/discount/<string:id>", methods=["POST", "GET"])
 def discount_element(id):
     discount_info = discountElement.query.filter_by(id=id).first()
@@ -221,7 +219,8 @@ def delete_discount(id):
     flash("Successfuly deleted discount element!", 'success')
     return redirect(url_for('main'))
 
-# Event functionalities
+# All event functionalities
+
 @app.route("/event/<int:id>", methods=["POST", "GET"])
 def event_element(id):
     event_info = eventElement.query.filter_by(id=id).first()

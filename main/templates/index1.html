@@ -12,29 +12,73 @@
     <div class="points"></div> 
    </div>
   </section>
-
+  
+  <h1 class="h1">ღონისძიებები & ლექციები</h1>
+  <h6 class="h6">არ გამოტოვო არცერთი გასაოცარი შეხვედრა</h6>
   <section class="section2">
-    <div class="container">
+    <div class="container-fluid">
       <div class="row">
         <div class="button2"><button id="prevButton"><i class="fa-solid fa-chevron-left fa"></i></button></div>
-        <div class="button2"><button id="nextButton"><i class="fa-solid fa-chevron-right fa"></i></button></div>
-        <div class="carousel">
+        <div class="carousel-container">
           <div class="cards">
             {% for element in event_elements %}
-              <a href="{{ url_for('event_element', id=element.id) }}">
-              <div class="card" style="width: 25%;">
-                <img src="static/imgs/DiscountnEventImages/{{element.img}}" class="card-img-top" alt="{{ element.img }}">
+              <div class="card" style="width: 25%;"><a href="{{ url_for('event_element', id=element.id) }}">
+                <img src="static/imgs/DiscountnEventImages/{{element.img}}" class="card-img-top" alt="...">
                 <div class="card-body">
                   <h5 class="card-title">{{element.name}}</h5>
-                  <p class="card-text">{{ element.categories }}</p>
-                </div>
-              </div></a>
+                  <p class="card-text">{{element.categories}}</p>
+                </div></a>
+              </div>
             {% endfor %}
+            
+        </div>
       </div>
-    </div>   
-  </section>
+      <div class="button2"><button id="nextButton"><i class="fa-solid fa-chevron-right fa"></i></button></div>
+    </div>
+  </div>   
+</section>
+
+  <h1 class="h1">კვირის საუკეთესო ფასდაკლებები</h1>
+  <h6 class="h6">არ გამოტოვო კვირის საუკეთესო ფასდაკლებები</h6>
+  <section class="section3">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="button2"><button id="prevButton2"><i class="fa-solid fa-chevron-left fa"></i></button></div>
+        <div class="carousel-container">
+          <div class="cards2">
+              {% for element in discount_elements %}
+              <div class="card2" style="width: 25%;"><a href="{{ url_for('discount_element', id=element.id) }}">
+                <img src="static/imgs/DiscountnEventImages/{{element.img}}" class="card-img-top" alt="...">
+                <div class="card-body">
+                  <h5 class="card-title">{{element.condition}}</h5>
+                  <h6>{{element.name}}</h6>
+                  <p class="card-text">{{element.categories}}</p>
+                </div></a>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="button2"><button id="nextButton2"><i class="fa-solid fa-chevron-right fa"></i></button></div>
+        </div>
+      </div>
+    </section>
 
 <script src="./script.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
+
+
+<form method="POST" action="" enctype="multipart/form-data">
+  {{ email_form.hidden_tag() }}
+  <div>
+    {{ email_form.email.label(class="form-control-label") }}
+    {{ email_form.email(class="form-control form-control-lg") }}
+  </div>
+  <div>
+    {{ email_form.submit(class="form-control form-control-lg") }}
+  </div>
+
+</form>
+
+
 {% endblock content %}

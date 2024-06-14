@@ -34,6 +34,7 @@ class eventElement(db.Model):
     end_date = db.Column(db.DateTime, nullable=False)
     event_hoster = db.Column(db.String(100), nullable=False)
     location = db.Column(db.String(200), nullable=False)
+    type = db.Column(db.String(20), nullable=False)
     img = db.Column(db.String(20), nullable=False)
 
     # @property
@@ -45,4 +46,11 @@ class eventElement(db.Model):
     
     def __repr__(self):
         return f"Event(name: '{self.name}', img: {self.img})"
-    
+
+
+class email(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(60), unique=True, nullable=False)
+
+    def __repr__(self):
+        return f"email - {self.email}"

@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, DateTimeField, PasswordField
+from wtforms import StringField, SubmitField, DateTimeField, PasswordField, EmailField, BooleanField, SelectField
 from wtforms.validators import DataRequired, Length
 from flask_wtf.file import FileField, FileAllowed, FileRequired
 
@@ -16,6 +16,8 @@ class DiscountElementForm(FlaskForm):
     expiration_duration = DateTimeField("Expiration Date (თთ/დდ/წწ)", format="%m/%d/%Y",
                        validators=[DataRequired()])
     img = FileField("Image", validators=[FileRequired(), FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')])
+
+    toggle = BooleanField('Send to users?')
 
     submit = SubmitField('Publish')
 
@@ -35,6 +37,12 @@ class eventElementForm(FlaskForm):
                         validators=[DataRequired(), Length(min=5, max=200)])
     img = FileField("Image",
                     validators=[FileRequired(), FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')])
+    
+    dropdown = SelectField('Choose Type', choices=[('1', 'საუნივერსიტეტო'), ('2', 'სპონსორი')],
+                           validators=[DataRequired()])
+    
+    toggle = BooleanField('Send to users?')
+
     submit = SubmitField('Publish')
 
 
@@ -43,3 +51,8 @@ class LoginForm(FlaskForm):
                            validators=[DataRequired(), Length(min=2, max=20)])
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Login')
+
+class emailForm(FlaskForm):
+    email = EmailField('Email',
+                       validators=[DataRequired()])
+    submit = SubmitField('Subscribe')

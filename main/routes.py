@@ -1,26 +1,51 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_user, logout_user, login_required
-from main.forms import DiscountElementForm, eventElementForm, LoginForm
-from main.modules import discountElement, eventElement, User
+from main.forms import DiscountElementForm, eventElementForm, LoginForm, emailForm
+from main.models import discountElement, eventElement, User, email
 from werkzeug.utils import secure_filename
 import os
-from main import db, app
+from main import db, app, serializer, mail
+from flask_mail import Message
 import random
 from datetime import datetime
 from main.auto_correction import process_text
 from main.search_system import search_query
+from main.email_sender import send_emails
 
 
+def send_activation_email(user_email):
+    token = serializer.dumps(user_email, salt='email-confirmation-salt')
+    activation_link = url_for('activation_account', token=token, _external=True)
+
+    msg = Message('Account Activation', sender='ldzotsenidze4@gmail.com', recipients=[user_email])
+    msg.body = f"To activate your account and get updated when new events/discounts get added, click the following link {activation_link}\nIf you are'nt the one who tried to activate account on our website feel free to ignore this message."
+
+    mail.send(msg)
 
 @app.route("/", methods=['POST', 'GET'])
 @app.route("/home", methods=['POST', 'GET'])
 def main():
     discount_elements = discountElement.query.all()
     event_elements = eventElement.query.all()
+    emails = [email.email for email in email.query.all()]
+    email_form = emailForm()
+
 
     # shuffling elements
     random.shuffle(discount_elements)
     random.shuffle(event_elements)
+
+
+    if email_form.validate_on_submit():
+        if email_form.email.data not in emails:
+            send_activation_email(email_form.email.data)
+            flash('A confirmation email has been sent to your email address.', 'success')
+        #     user_email = email(email=email_form.email.data)
+        #     db.session.add(user_email)
+        #     db.session.commit()
+        #     flash('Succesfully Subscribed', 'success')
+        else:
+            flash('Email has already subscribed', 'warning')
 
     user_query = request.args.get('query')
     if user_query:
@@ -30,11 +55,20 @@ def main():
         return render_template('search_results.html', text=processed_text)
 
 
-    return render_template("index1.html", discount_elements=discount_elements, event_elements=event_elements)
+    return render_template("index1.html", discount_elements=discount_elements, event_elements=event_elements, email_form=email_form)
 
 # @app.route("/search")
 # def search():
 #     return render_template('search_results.html', text=user_query)
+
+@app.route('/activation/<token>')
+def activation_account(token):
+    email_address = serializer.loads(token, salt='email-confirmation-salt', max_age=3600)
+    user_email = email(email=email_address)
+    db.session.add(user_email)
+    db.session.commit()
+    flash("Your account has been activated!", 'success')
+    return redirect(url_for('main'))
 
 @app.route('/login_to_admin_page', methods=['GET', 'POST'])
 def login():
@@ -60,6 +94,7 @@ def logout():
 @login_required
 def add():
     discount_form = DiscountElementForm()
+    emails = [email.email for email in email.query.all()]
 
     # add new discount element
     if discount_form.validate_on_submit():
@@ -74,10 +109,18 @@ def add():
                                            description=discount_form.description.data, categories=discount_form.categories.data,
                                            expiration_duration=discount_form.expiration_duration.data, img=filename)
 
+        flash(f"Successfully added new discount with name {discount_form.name.data}!", "success")
+        
         db.session.add(discount_element)
         db.session.commit()
 
-        flash(f"Successfully added new discount with name {discount_form.name.data}!", "success")
+        if discount_form.toggle.data:
+            id = discountElement.query.filter_by(name=discount_form.name.data).first().id
+
+            send_emails(category='discount', id=id, name=discount_form.name.data, 
+                        condition=discount_form.condition.data,
+                        expiration_duration=discount_form.expiration_duration.data, emails=emails)
+
 
         return redirect(url_for('add'))
 
@@ -96,10 +139,19 @@ def add():
         event_element = eventElement(name=event_form.name.data, description=event_form.description.data,
                                      categories=event_form.categories.data, start_date=event_form.start_date.data,
                                      end_date=event_form.end_date.data, event_hoster=event_form.event_hoster.data,
-                                     location=event_form.location.data, img=filename)
+                                     location=event_form.location.data, type=event_form.dropdown.data, img=filename)
 
         db.session.add(event_element)
         db.session.commit()
+
+        if event_form.toggle.data:
+            id = eventElement.query.filter_by(name=event_form.name.data).first().id
+            print(id, emails)
+            send_emails(category='event', id=id, name=event_form.name.data, 
+                        start_date=event_form.start_date.data,
+                        end_date=event_form.end_date.data,
+                        event_hoster=event_form.event_hoster.data,
+                        emails=emails)
 
         flash(f"Successfully added new event with name {event_form.name.data}!", "success")
         return redirect(url_for('add'))
@@ -239,3 +291,13 @@ def events_page():
                     filtered_elements.append(event_element)
             return render_template('events_section.html', event_elements=filtered_elements)
     return render_template('events_section.html', event_elements=event_elements)
+
+@app.route('/student_events', methods=['POST', 'GET'])
+def students_event_page():
+    student_events = eventElement.query.filter_by(type='საუნივერსიტეტო').all()
+    return render_template('students.html', events=student_events)
+
+@app.route('/sponsor_events', methods=['POST', 'GET'])
+def sponsors_event_page():
+    sponsor_events = eventElement.query.filter_by(type='სპონსორი').all()
+    return render_template('sponsors.html', events=sponsor_events)

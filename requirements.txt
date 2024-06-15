@@ -1,6 +1,7 @@
 Flask-SQLAlchemy
 Flask
 WTForms
+Flask-WTF
 Flask-Mail
 Flask-Login
 google-generativeai

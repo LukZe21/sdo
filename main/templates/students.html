@@ -39,70 +39,47 @@
         </nav>
     </header>
     <section>
-        <div class="container">
-            <div class="row">
+      <div class="container">
+          <div class="row">
               <div class="carousel-container">
-                <div class="row1">
-                    <div class="card mb-3 col-md-6">
-                        <div class="row no-gutters">
-                          <div class="col-md-4">
-                            <img src="static/imgs/DiscountnEventImages/gruni.jpg" alt="...">
+                  <div class="row1">
+                      {% for event in events[:2] %}
+                      <div class="card mb-3 col-md-6">
+                          <div class="row no-gutters">
+                              <div class="col-md-4">
+                                  <img src="static/imgs/DiscountnEventImages/{{ event.img }}" alt="...">
+                              </div>
+                              <div class="col-md-8">
+                                  <div class="card-body">
+                                      <h5 class="card-title">{{ event.name }}</h5>
+                                      <a href="">READ MORE</a>
+                                  </div>
+                              </div>
                           </div>
-                          <div class="col-md-8">
-                            <div class="card-body">
-                              <h5 class="card-title">პოლიტიკა სამართალი და ჟურნალისტიკა - დემოკრატიის საფუძვლები</h5>
-                              <a href="">READ MORE</a>
-                            </div>
-                          </div>
-                        </div>
                       </div>
-                      <div class="card mb-3 col-md-6" >
-                        <div class="row no-gutters">
-                          <div class="col-md-4">
-                            <img src="static/imgs/DiscountnEventImages/GIU.jpg" alt="...">
+                      {% endfor %}
+                  </div>
+                  <div class="row2">
+                      {% for event in events[2:] %}
+                      <div class="card mb-3 col-md-6">
+                          <div class="row no-gutters">
+                              <div class="col-md-4">
+                                  <img src="static/imgs/DiscountnEventImages/{{ event.img }}" alt="...">
+                              </div>
+                              <div class="col-md-8">
+                                  <div class="card-body">
+                                      <h5 class="card-title">{{ event.name }}</h5>
+                                      <a href="">READ MORE</a>
+                                  </div>
+                              </div>
                           </div>
-                          <div class="col-md-8">
-                            <div class="card-body">
-                              <h5 class="card-title">SECOND EDUCATIONAL PARTY</h5>
-                              <a href="">READ MORE</a>
-                            </div>
-                          </div>
-                        </div>
                       </div>
-                </div>
-                <div class="row2">
-                    <div class="card mb-3 col-md-6" >
-                        <div class="row no-gutters">
-                          <div class="col-md-4">
-                            <img src="static/imgs/DiscountnEventImages/IBSU.jpg" alt="...">
-                          </div>
-                          <div class="col-md-8">
-                            <div class="card-body">
-                              <h5 class="card-title">FIRST EDUCATIONAL PARTY</h5>
-                              <a href="">READ MORE</a>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="card mb-3 col-md-6" >
-                        <div class="row no-gutters">
-                          <div class="col-md-4">
-                            <img src="static/imgs/DiscountnEventImages/CU.jpg" alt="...">
-                          </div>
-                          <div class="col-md-8">
-                            <div class="card-body">
-                              <h5 class="card-title">პოლიტიკა სამართალი და ჟურნალისტიკა - დემოკრატიის საფუძვლები</h5>
-                              <a href="">READ MORE</a>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                </div>
+                      {% endfor %}
+                  </div>
               </div>
-            </div>
-        </div>
-    </section>
+          </div>
+      </div>
+  </section>
 
     
       <footer>

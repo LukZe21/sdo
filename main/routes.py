@@ -30,7 +30,6 @@ def main():
     emails = [email.email for email in email.query.all()]
     email_form = emailForm()
 
-
     # shuffling elements
     random.shuffle(discount_elements)
     random.shuffle(event_elements)
@@ -293,10 +292,11 @@ def events_page():
 
 @app.route('/student_events', methods=['POST', 'GET'])
 def students_event_page():
-    student_events = eventElement.query.filter_by(type='საუნივერსიტეტო').all()
+    student_events = eventElement.query.filter_by(type='1').all()
+    print(student_events)
     return render_template('students.html', events=student_events)
 
 @app.route('/sponsor_events', methods=['POST', 'GET'])
 def sponsors_event_page():
-    sponsor_events = eventElement.query.filter_by(type='სპონსორი').all()
+    sponsor_events = eventElement.query.filter_by(type='0').all()
     return render_template('sponsors.html', events=sponsor_events)

@@ -3,5 +3,4 @@ Flask
 WTForms
 Flask-Mail
 Flask-Login
-email
 google-generativeai

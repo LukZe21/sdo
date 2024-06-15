@@ -4,3 +4,4 @@ WTForms
 Flask-Mail
 Flask-Login
 google-generativeai
+gunicorn

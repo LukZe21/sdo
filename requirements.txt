@@ -5,3 +5,4 @@ Flask-Mail
 Flask-Login
 google-generativeai
 gunicorn
+Flask-Cors

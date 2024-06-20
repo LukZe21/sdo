@@ -1,8 +1,8 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, DateTimeField, PasswordField, EmailField, BooleanField, SelectField
-from wtforms.validators import DataRequired, Length
+from wtforms.validators import DataRequired, Length, EqualTo, ValidationError
 from flask_wtf.file import FileField, FileAllowed, FileRequired
-
+from main.models import User
 
 class DiscountElementForm(FlaskForm):
     name = StringField("Name",
@@ -47,10 +47,28 @@ class eventElementForm(FlaskForm):
 
 
 class LoginForm(FlaskForm):
-    username = StringField('Username',
-                           validators=[DataRequired(), Length(min=2, max=20)])
+    email = EmailField('Email', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Login')
+
+
+class RegisterForm(FlaskForm):
+    username = StringField('Full Name',
+                           validators=[DataRequired()])
+    
+    email = EmailField('Email', validators=[DataRequired()])
+    
+    password = PasswordField('Password', validators=[DataRequired()])
+    confirm_password = PasswordField('Confirm Password',
+                                     validators=[DataRequired(), EqualTo('password')])
+
+    submit = SubmitField('Register')
+
+    def validate_email(self, email):
+        user = User.query.filter_by(email=email.data).first()
+        if user:
+            raise ValidationError('This email is taken. Please choose a different one.')
+
 
 class emailForm(FlaskForm):
     email = EmailField('Email',

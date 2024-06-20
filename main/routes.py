@@ -1,16 +1,31 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
-from flask_login import login_user, logout_user, login_required
-from main.forms import DiscountElementForm, eventElementForm, LoginForm, emailForm
+from flask_login import login_user, logout_user, login_required, current_user
+from main.forms import DiscountElementForm, eventElementForm, LoginForm, emailForm, RegisterForm
 from main.models import discountElement, eventElement, User, email
 from werkzeug.utils import secure_filename
 import os
-from main import db, app, serializer, mail
+from main import db, app, serializer, mail, bcrypt
 from flask_mail import Message
 import random
 from datetime import datetime
+import json
 from main.auto_correction import process_text
 from main.search_system import search_query
 from main.email_sender import send_emails
+
+def load_json(file_path):
+    with open(file_path, 'r') as json_file:
+        data = json.load(json_file)
+    return data
+
+def add_user_info(user_data):
+    file_path = 'main/static/user_data.json'
+    current_data = load_json(file_path)
+
+    current_data.append(user_data)
+
+    with open(file_path, 'w') as file:
+        json.dump(current_data, file, indent=2)
 
 
 def send_activation_email(user_email):
@@ -65,25 +80,6 @@ def activation_account(token):
     flash("Your account has been activated!", 'success')
     return redirect(url_for('main'))
 
-@app.route('/login_to_admin_page', methods=['GET', 'POST'])
-def login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first()
-        if user and user.password == form.password.data:
-            login_user(user, remember=True)
-            flash('You have been logged in!', 'success')
-            return redirect(url_for('add'))
-        else:
-            flash('login Unsuccessful.', 'danger')
-
-    return render_template('login_page.html', form=form)
-
-@app.route("/logout")
-def logout():
-    logout_user()
-    flash('Successfully logged out')
-    return redirect(url_for('main'))
 
 @app.route("/admin-page", methods=['GET', 'POST'])
 @login_required
@@ -300,3 +296,56 @@ def students_event_page():
 def sponsors_event_page():
     sponsor_events = eventElement.query.filter_by(type='0').all()
     return render_template('sponsors.html', events=sponsor_events)
+
+
+@app.route('/groups', methods=['POST', 'GET'])
+def groups_section():
+    return render_template('groups_section.html')
+
+@app.route('/registration', methods=['POST', 'GET'])
+def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('main'))
+    form = RegisterForm()
+    if form.validate_on_submit():
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        user = User(username=form.username.data, email=form.email.data, password=hashed_password)
+        db.session.add(user)
+        db.session.commit()
+    
+        add_user_info({
+            "email": form.email.data,
+            "password": form.password.data
+        })
+        
+        flash('Your account has been created! You are now able to log in', 'success')
+        return redirect(url_for('login'))
+    return render_template('register_page.html', form=form)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('main'))
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user and bcrypt.check_password_hash(user.password, form.password.data):
+            login_user(user, remember=True)
+            flash('You have been logged in!', 'success')
+            return redirect(url_for('main'))
+        else:
+            flash('Login Unsuccessful.', 'danger')
+
+    return render_template('login_page.html', form=form)
+
+@app.route("/profile", methods=['GET', 'POST'])
+@login_required
+def profile():
+    return render_template('profile.html')
+
+
+@app.route("/logout")
+def logout():
+    logout_user()
+    flash('Successfully logged out', 'success')
+    return redirect(url_for('main'))

@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block content %}
+<p>სრული სახელი: {{ current_user.username }}</p>
+<p>Email: {{ current_user.email }}</p>
+<p>ამჟამინდელი წოდება: {{ current_user.rank }}</p>
+{% endblock content %}

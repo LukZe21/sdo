@@ -1,7 +1,11 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, DateTimeField, PasswordField, EmailField, BooleanField, SelectField
+from wtforms import StringField, SubmitField, DateTimeField, PasswordField, EmailField, BooleanField, SelectField, IntegerField, TextAreaField
 from wtforms.validators import DataRequired, Length, EqualTo, ValidationError
 from flask_wtf.file import FileField, FileAllowed, FileRequired
+from flask_admin.contrib.sqla import ModelView
+from flask_admin import BaseView, expose
+import os
+from main import app
 from main.models import User
 
 class DiscountElementForm(FlaskForm):
@@ -21,6 +25,16 @@ class DiscountElementForm(FlaskForm):
 
     submit = SubmitField('Publish')
 
+
+class DiscountElementView(ModelView):
+    form = DiscountElementForm
+    
+    def on_model_change(self, form, model, is_created):
+        if form.img.data:
+            image_path = os.path.join(app.config['UPLOAD_FOLDER'], form.img.data.filename)
+            form.img.data.save(image_path)
+            model.img = form.img.data.filename
+        return super(DiscountElementView, self).on_model_change(form, model, is_created)
 
 class eventElementForm(FlaskForm):
     name = StringField("Name",
@@ -45,6 +59,16 @@ class eventElementForm(FlaskForm):
 
     submit = SubmitField('Publish')
 
+class EventElementView(ModelView):
+    form = eventElementForm
+    
+    def on_model_change(self, form, model, is_created):
+        if form.img.data:
+            image_path = os.path.join(app.config['UPLOAD_FOLDER'], form.img.data.filename)
+            form.img.data.save(image_path)
+            model.img = form.img.data.filename
+        return super(EventElementView, self).on_model_change(form, model, is_created)
+
 
 class LoginForm(FlaskForm):
     email = EmailField('Email', validators=[DataRequired()])
@@ -60,7 +84,10 @@ class RegisterForm(FlaskForm):
     
     password = PasswordField('Password', validators=[DataRequired()])
     confirm_password = PasswordField('Confirm Password',
-                                     validators=[DataRequired(), EqualTo('password')])
+                                    validators=[DataRequired(), EqualTo('password')])
+    
+    dropdown = SelectField('რომელი განხრა გაინტერესებთ?', choices=[('მარკეტინგი', 'მარკეტინგი'), ('არაფორმალური განათლება', 'არაფორმალური განათლება'), ('სპორტი', 'სპორტი'), ('ტექნოლოგიები და ინოვაციები', 'ტექნოლოგიები და ინოვაციები')],
+                           validators=[DataRequired()])
 
     submit = SubmitField('Register')
 
@@ -69,8 +96,48 @@ class RegisterForm(FlaskForm):
         if user:
             raise ValidationError('This email is taken. Please choose a different one.')
 
-
 class emailForm(FlaskForm):
     email = EmailField('Email',
                        validators=[DataRequired()])
     submit = SubmitField('Subscribe')
+
+class LogsView(BaseView):
+    @expose("/")
+    def index(self):
+        return self.render('admin/logs.html')
+    
+class UserForm(FlaskForm):
+    username = StringField('Fullname', validators=[DataRequired()])
+    email = EmailField('Email', validators=[DataRequired()])
+    rank = SelectField('Rank', choices=[('მოდერატორი', 'მოდერატორი'), ('ხელმძღვანელი', 'ხელმძღვანელი'), ('თანახელმძღვანელი', 'თანახელმძღვანელი'), ('წევრი', 'წევრი')],
+                        validators=[DataRequired()])
+    submit = SubmitField('Save')
+
+class UserView(ModelView):
+    form = UserForm
+    def on_model_change(self, form, model, is_created):
+        return super(UserView, self).on_model_change(form, model, is_created)
+    
+
+class GroupForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()])
+    description = StringField('Description')
+    category = SelectField('Category', choices=[
+        ('მარკეტინგი', 'მარკეტინგი'), 
+        ('არაფორმალური განათლება', 'არაფორმალური განათლება'), 
+        ('სპორტი', 'სპორტი'), 
+        ('ტექნოლოგიები და ინოვაციები', 'ტექნოლოგიები და ინოვაციები')
+    ])
+    score = IntegerField('Score', validators=[DataRequired()])
+
+class GroupView(ModelView):
+    form = GroupForm
+    form_extra_fields = {
+        'members': TextAreaField('Members', description="შეიყვანე ჯგუფის წევრები მძიმეების(,) გამოყოფით.")
+    }
+    form_columns = ('name', 'description', 'category', 'members', 'score')
+
+    def on_model_change(self, form, model, is_created):
+        if 'members' in form.data:
+            model.members_list = [member.strip() for member in form.members.data.split(',')]
+        return super(GroupView, self).on_model_change(form, model, is_created)

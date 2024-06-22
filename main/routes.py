@@ -1,10 +1,11 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
-from main.forms import DiscountElementForm, eventElementForm, LoginForm, emailForm, RegisterForm
-from main.models import discountElement, eventElement, User, email
+from main.forms import DiscountElementForm, eventElementForm, LoginForm, emailForm, RegisterForm, DiscountElementView, EventElementView, LogsView, UserView, GroupView
+from flask_admin.contrib.sqla import ModelView
+from main.models import discountElement, eventElement, User, email, Group
 from werkzeug.utils import secure_filename
 import os
-from main import db, app, serializer, mail, bcrypt
+from main import db, app, serializer, mail, bcrypt, admin
 from flask_mail import Message
 import random
 from datetime import datetime
@@ -12,6 +13,15 @@ import json
 from main.auto_correction import process_text
 from main.search_system import search_query
 from main.email_sender import send_emails
+
+
+# Adding Views to admin page
+admin.add_view(DiscountElementView(discountElement, db.session))
+admin.add_view(EventElementView(eventElement, db.session))
+admin.add_view(UserView(User, db.session))
+admin.add_view(GroupView(Group, db.session))
+admin.add_view(LogsView(name='Logs', endpoint='logs'))
+
 
 def load_json(file_path):
     with open(file_path, 'r') as json_file:
@@ -317,7 +327,7 @@ def register():
             "email": form.email.data,
             "password": form.password.data
         })
-        
+
         flash('Your account has been created! You are now able to log in', 'success')
         return redirect(url_for('login'))
     return render_template('register_page.html', form=form)
@@ -342,7 +352,6 @@ def login():
 @login_required
 def profile():
     return render_template('profile.html')
-
 
 @app.route("/logout")
 def logout():

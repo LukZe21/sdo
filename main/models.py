@@ -1,5 +1,8 @@
 from main import db, login_manager
 from flask_login import UserMixin
+from wtforms import TextAreaField
+from flask_admin.contrib.sqla import ModelView
+import json
 
 
 @login_manager.user_loader
@@ -12,6 +15,8 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(20), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     rank = db.Column(db.String(50), nullable=False, default='წევრი')
+    score = db.Column(db.Integer, nullable=False, default=0)
+    group = db.Column(db.String(20), default='არ ხართ გაწევრიანებული')
     password = db.Column(db.String(60), nullable=False)
 
 class discountElement(db.Model):
@@ -26,7 +31,6 @@ class discountElement(db.Model):
     def __repr__(self):
         return f"Discount(name: '{self.name}', condition: {self.condition}, img: {self.img})"
     
-
 class eventElement(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -38,17 +42,26 @@ class eventElement(db.Model):
     location = db.Column(db.String(200), nullable=False)
     type = db.Column(db.String(20), nullable=False)
     img = db.Column(db.String(20), nullable=False)
-
-    # @property
-    # def formatted_duration(self):
-    #     """Returns the duration in hours and minutes."""
-    #     if self.duration:
-    #         return f"{self.end_date-self.start_date} hr"
-    #     return None
     
     def __repr__(self):
         return f"Event(name: '{self.name}', img: {self.img})"
+    
 
+class Group(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(20), nullable=False, unique=True)
+    description = db.Column(db.String(250))
+    category = db.Column(db.String(100), nullable=False)
+    members = db.Column(db.String)
+    score = db.Column(db.Integer, nullable=False, default=0)
+
+    @property
+    def members_list(self):
+        return json.loads(self.members) if self.members else []
+    
+    @members_list.setter
+    def members_list(self, members):
+        self.members = json.dumps(members)
 
 class email(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -56,3 +69,4 @@ class email(db.Model):
 
     def __repr__(self):
         return f"email - {self.email}"
+    

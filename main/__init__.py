@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
+from flask_admin import Admin
 
 app = Flask(__name__)
 CORS(app)
@@ -24,6 +25,7 @@ mail = Mail(app)
 serializer = URLSafeSerializer(app.config['SECRET_KEY'])
 
 db = SQLAlchemy(app)
+admin = Admin(app, name='SDO Administration', template_mode='bootstrap3')
 bcrypt = Bcrypt(app)
 
 login_manager = LoginManager(app)

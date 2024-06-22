@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
-<p>სრული სახელი: {{ current_user.username }}</p>
-<p>Email: {{ current_user.email }}</p>
-<p>ამჟამინდელი წოდება: {{ current_user.rank }}</p>
+<p>სრული სახელი - {{ current_user.username }}</p>
+<p>Email - {{ current_user.email }}</p>
+{% if current_user.group != "არ ხართ გაწევრიანებული" %}
+<p>გაწევრიანებული ხართ - "{{ current_user.group }}" სამუშაო ჯგუფში</p>
+<p>ამჟამინდელი წოდება - {{ current_user.rank }}</p>
+{% else %}
+<p>სამუშაო ჯგუფი - ჯერჯერობით არხართ გაწევრიანებული არცერთ სამუშაო ჯგუფში</p>
+{% endif %}
+<p>პერსონალური ქულა - {{ current_user.score }}</p>
 {% endblock content %}

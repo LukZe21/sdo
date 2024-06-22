@@ -7,3 +7,5 @@ Flask-Login
 google-generativeai
 gunicorn
 Flask-Cors
+Flask-admin
+Flask-bcrypt

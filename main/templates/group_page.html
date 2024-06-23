@@ -1,0 +1,43 @@
+{% extends "new_base.html" %}
+{% block content %}
+    <style>
+        .join-button, .leave-button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px; /* Added margin between buttons */
+        }
+
+        .leave-button{
+            background-color: rgb(240, 60, 60);
+        }
+
+        .join-button:hover, .leave-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+    <div class="group-details">
+        <h1>Group: {{ group.name }}</h1>
+        <p>Group Score: {{ group.score }}</p>
+        <p>ხელმძღვანელი: {{ leader.username }}</p>
+
+        <h2>ჯგუფის წევრები:</h2>
+        <ul class="member-list">
+            {% for member in group.members %}
+                <li>{{ member.username }}, </li>
+            {% endfor %}
+        </ul>
+        
+        {% if not current_user.in_group %}
+        <form method="POST" action="">
+            <button class="join-button" type="submit">Join Group</button>
+        </form>
+        {% endif %}
+        {% if current_user.in_group %}
+            <a href="{{ url_for('leave_group', id=group.id) }}" class="leave-button">Leave Group</a>
+        {% endif %}
+    </div>
+{% endblock content %}

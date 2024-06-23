@@ -90,99 +90,6 @@ def activation_account(token):
     flash("Your account has been activated!", 'success')
     return redirect(url_for('main'))
 
-
-@app.route("/admin-page", methods=['GET', 'POST'])
-@login_required
-def add():
-    discount_form = DiscountElementForm()
-    emails = [email.email for email in email.query.all()]
-
-    # add new discount element
-    if discount_form.validate_on_submit():
-        img_file = discount_form.img.data
-        filename = secure_filename(img_file.filename)
-        print(filename)
-        
-        upload_folder = app.config['UPLOAD_FOLDER']
-
-        img_file.save(os.path.join(upload_folder, filename))
-        discount_element = discountElement(name=discount_form.name.data, condition=discount_form.condition.data,
-                                           description=discount_form.description.data, categories=discount_form.categories.data,
-                                           expiration_duration=discount_form.expiration_duration.data, img=filename)
-
-        flash(f"Successfully added new discount with name {discount_form.name.data}!", "success")
-        
-        db.session.add(discount_element)
-        db.session.commit()
-
-        # if send to users via email is toggled emails will be sent to all users
-        if discount_form.toggle.data:
-            id = discountElement.query.filter_by(name=discount_form.name.data).first().id
-
-            send_emails(category='discount', id=id, name=discount_form.name.data, 
-                        condition=discount_form.condition.data,
-                        expiration_duration=discount_form.expiration_duration.data, emails=emails)
-
-
-        return redirect(url_for('add'))
-
-
-    # add new event element
-    event_form = eventElementForm()
-
-    if event_form.validate_on_submit():
-        img_file = event_form.img.data
-        filename = secure_filename(img_file.filename)
-        print(filename)
-        
-        upload_folder = app.config['UPLOAD_FOLDER']
-
-        img_file.save(os.path.join(upload_folder, filename))
-        event_element = eventElement(name=event_form.name.data, description=event_form.description.data,
-                                     categories=event_form.categories.data, start_date=event_form.start_date.data,
-                                     end_date=event_form.end_date.data, event_hoster=event_form.event_hoster.data,
-                                     location=event_form.location.data, type=event_form.dropdown.data, img=filename)
-
-        db.session.add(event_element)
-        db.session.commit()
-
-        # if send to users via email is toggled emails will be sent to all users
-        if event_form.toggle.data:
-            id = eventElement.query.filter_by(name=event_form.name.data).first().id
-            send_emails(category='event', id=id, name=event_form.name.data, 
-                        start_date=event_form.start_date.data,
-                        end_date=event_form.end_date.data,
-                        event_hoster=event_form.event_hoster.data,
-                        emails=emails)
-
-        flash(f"Successfully added new event with name {event_form.name.data}!", "success")
-        return redirect(url_for('add'))
-    
-    # remove discount or event element
-    if request.method=="POST":
-        form_id = request.form.get('form_id')
-        if form_id == 'form1':
-            try:
-                discount_element_id = request.form.get('discount')
-                discount_element = discountElement.query.get(int(discount_element_id))
-                db.session.delete(discount_element)
-                db.session.commit()
-                flash(f"Successfully deleted discount with name {discount_element.name}")
-            except:
-                return "ID must be a valid number."
-        elif form_id == 'form2':
-            try:
-                event_element_id = request.form.get('event')
-                event_element = eventElement.query.get(int(event_element_id))
-                db.session.delete(event_element)
-                db.session.commit()
-                flash(f"Successfully deleted event with name {event_element.name}")
-            except:
-                return "ID must be a valid number."
-
-    return render_template('add_elements.html', discount_form=discount_form, event_form=event_form)
-
-
 # All discount functionalities
 
 @app.route("/discount/<string:id>", methods=["POST", "GET"])
@@ -310,7 +217,38 @@ def sponsors_event_page():
 
 @app.route('/groups', methods=['POST', 'GET'])
 def groups_section():
-    return render_template('groups_section.html')
+    groups = Group.query.all()
+    return render_template('groups_section.html', groups=groups)
+
+@app.route('/group_page/<int:id>', methods=['POST', 'GET'])
+def group_page(id):
+    group = Group.query.filter_by(id=id).first()
+    print(group.members)
+    leader = User.query.get(group.leader_id)
+    if request.method == "POST":
+        try:
+            user_id = current_user.id
+            user = User.query.get(user_id)
+            group.members.append(user)
+            user.in_group = True
+            db.session.commit()
+            flash('Successfully joined the group!', 'success')
+        except:
+            flash('You must be logged in to send a request to join the group', 'success')
+            return redirect(url_for('login'))
+    return render_template('group_page.html', group=group, leader=leader)
+
+@app.route('/leave_group/<int:id>', methods=['POST', 'GET'])
+def leave_group(id):
+    group = Group.query.filter_by(id=id).first()
+    user = User.query.get(current_user.id)
+    if user in group.members:
+        user.in_group = False
+        user.group_id = None
+        user.group = None
+        db.session.commit()
+        flash('Successfully Left the group', 'warning')
+    return redirect(url_for('group_page', id=id))
 
 @app.route('/registration', methods=['POST', 'GET'])
 def register():
@@ -342,7 +280,7 @@ def login():
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user, remember=True)
             flash('You have been logged in!', 'success')
-            return redirect(url_for('main'))
+            return redirect(url_for('groups_section'))
         else:
             flash('Login Unsuccessful.', 'danger')
 

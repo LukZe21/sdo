@@ -77,18 +77,20 @@ class LoginForm(FlaskForm):
 
 
 class RegisterForm(FlaskForm):
-    username = StringField('Full Name',
+    firstname = StringField('სახელი',
                            validators=[DataRequired()])
+    lastname = StringField('გვარი',
+                           validators=[DataRequired()])
+    nickname = StringField('მეტსახელი (შეგიძლიათ გამოტოვოთ)',
+                           validators=[DataRequired()])
+    email = EmailField('Email',
+                       validators=[DataRequired()])
     
-    email = EmailField('Email', validators=[DataRequired()])
-    
-    password = PasswordField('Password', validators=[DataRequired()])
+    password = PasswordField('Password',
+                            validators=[DataRequired()])
     confirm_password = PasswordField('Confirm Password',
                                     validators=[DataRequired(), EqualTo('password')])
     
-    dropdown = SelectField('რომელი განხრა გაინტერესებთ?', choices=[('მარკეტინგი', 'მარკეტინგი'), ('არაფორმალური განათლება', 'არაფორმალური განათლება'), ('სპორტი', 'სპორტი'), ('ტექნოლოგიები და ინოვაციები', 'ტექნოლოგიები და ინოვაციები')],
-                           validators=[DataRequired()])
-
     submit = SubmitField('Register')
 
     def validate_email(self, email):
@@ -107,10 +109,17 @@ class LogsView(BaseView):
         return self.render('admin/logs.html')
     
 class UserForm(FlaskForm):
-    username = StringField('Fullname', validators=[DataRequired()])
-    email = EmailField('Email', validators=[DataRequired()])
+    firstname = StringField('სახელი',
+                            validators=[DataRequired()])
+    lastname = StringField('გვარი',
+                           validators=[DataRequired()])
+    nickname = StringField('მეტსახელი')
+    email = EmailField('Email',
+                       validators=[DataRequired()])
     rank = SelectField('Rank', choices=[('მოდერატორი', 'მოდერატორი'), ('ხელმძღვანელი', 'ხელმძღვანელი'), ('თანახელმძღვანელი', 'თანახელმძღვანელი'), ('წევრი', 'წევრი')],
                         validators=[DataRequired()])
+    in_group = BooleanField("Is this person in a working group?")
+    score = IntegerField('Personal Score')
     submit = SubmitField('Save')
 
 class UserView(ModelView):
@@ -128,7 +137,8 @@ class GroupForm(FlaskForm):
         ('სპორტი', 'სპორტი'), 
         ('ტექნოლოგიები და ინოვაციები', 'ტექნოლოგიები და ინოვაციები')
     ])
-    score = IntegerField('Score', validators=[DataRequired()])
+    leader_id = IntegerField('ლიდერის ID', validators=[DataRequired()])
+    score = IntegerField('Score', validators=[DataRequired()], default=100)
 
 class GroupView(ModelView):
     form = GroupForm

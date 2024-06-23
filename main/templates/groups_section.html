@@ -1,4 +1,125 @@
 {% extends "new_base.html" %}
 {% block content %}
+<style>
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
 
+    .custom-button {
+        padding: 15px 30px;
+        font-family: 'Arial', sans-serif;
+        font-weight: bold;
+        width: 100%;
+        max-width: 350px;
+        color: #fff;
+        background: linear-gradient(145deg, #32CD32, #228B22);
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin: auto;
+        margin-top: 30px;
+        text-decoration: none;
+        display: block;
+    }
+
+    .custom-button:hover {
+        background: linear-gradient(145deg, #228B22, #32CD32);
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .custom-button:active {
+        transform: translateY(0);
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .group {
+        background-color: #f9f9f9;
+        padding: 20px;
+        margin-top: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .group-name {
+        font-size: 24px;
+        margin-bottom: 10px;
+        color: #333;
+    }
+
+    .group-description {
+        margin-bottom: 10px;
+    }
+
+    .group-category {
+        font-style: italic;
+        margin-bottom: 10px;
+        color: #666;
+    }
+
+    .group-members {
+        color: #666;
+    }
+
+    .group-list {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    /* Media query for screens smaller than 768px */
+    @media (max-width: 767px) {
+        .container {
+            padding: 10px;
+        }
+
+        .custom-button {
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+
+        .group {
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .group-name {
+            font-size: 20px;
+        }
+
+        .group-description {
+            font-size: 14px;
+        }
+
+        .group-category {
+            font-size: 12px;
+        }
+
+        .group-members {
+            font-size: 12px;
+        }
+    }
+</style>
+
+{% if not current_user.in_group %}
+<a href="https://docs.google.com/forms/d/1dcCbT2LzL4p533jfhbJaCCRTSD3u3C-3EQLn4eD1ugo/edit" target="_blank" class="custom-button">Create Your Work Team</a>
+{% else %}
+<a href="" class="custom-button" style="background: rgb(238, 65, 65);" onclick="alert('თქვენ ხართ უკვე გაწევრიანებული სამუშაო გუნდში')">Create Your Work Team</a>
+{% endif %}
+
+<div class="container">
+    {% for group in groups %}
+    <a href="{{ url_for('group_page', id=group.id) }}"><div class="group">
+        <div class="group-name">{{ group.name }}</div>
+        <div class="group-description">{{ group.description }}</div>
+        <div class="group-category">{{ group.category }}</div>
+        <div class="group-members">Members: {{ group.members|length }}</div>
+    </div></a>
+    {% endfor %}
+</div>
 {% endblock %}

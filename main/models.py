@@ -12,12 +12,37 @@ def load_user(user_id):
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(20), nullable=False)
+    firstname = db.Column(db.String(20), nullable=False)
+    lastname = db.Column(db.String(30), nullable=False)
+    nickname = db.Column(db.String(10))
     email = db.Column(db.String(100), unique=True, nullable=False)
     rank = db.Column(db.String(50), nullable=False, default='წევრი')
     score = db.Column(db.Integer, nullable=False, default=0)
-    group = db.Column(db.String(20), default='არ ხართ გაწევრიანებული')
     password = db.Column(db.String(60), nullable=False)
+    is_active = db.Column(db.Boolean, nullable=False, default=False)
+
+    in_group = db.Column(db.Boolean, default=False)
+    group_id = db.Column(db.Integer, db.ForeignKey('group.id'), nullable=True)
+    group = db.relationship('Group', back_populates='members')
+
+class Group(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(20), nullable=False, unique=True)
+    leader_id = db.Column(db.Integer, nullable=False)
+    description = db.Column(db.String(250))
+    category = db.Column(db.String(100), nullable=False)
+    members = db.relationship('User', back_populates='group')
+    score = db.Column(db.Integer, nullable=False, default=0)
+
+    @property
+    def members_list(self):
+        return json.loads(self.members) if self.members else []
+    
+    @members_list.setter
+    def members_list(self, members):
+        self.members = json.dumps(members)
+
+
 
 class discountElement(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -45,23 +70,7 @@ class eventElement(db.Model):
     
     def __repr__(self):
         return f"Event(name: '{self.name}', img: {self.img})"
-    
 
-class Group(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(20), nullable=False, unique=True)
-    description = db.Column(db.String(250))
-    category = db.Column(db.String(100), nullable=False)
-    members = db.Column(db.String)
-    score = db.Column(db.Integer, nullable=False, default=0)
-
-    @property
-    def members_list(self):
-        return json.loads(self.members) if self.members else []
-    
-    @members_list.setter
-    def members_list(self, members):
-        self.members = json.dumps(members)
 
 class email(db.Model):
     id = db.Column(db.Integer, primary_key=True)

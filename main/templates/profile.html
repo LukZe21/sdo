@@ -1,12 +1,48 @@
 {% extends "base.html" %}
 {% block content %}
-<p>სრული სახელი - {{ current_user.username }}</p>
-<p>Email - {{ current_user.email }}</p>
-{% if current_user.group != "არ ხართ გაწევრიანებული" %}
-<p>გაწევრიანებული ხართ - "{{ current_user.group }}" სამუშაო ჯგუფში</p>
-<p>ამჟამინდელი წოდება - {{ current_user.rank }}</p>
-{% else %}
-<p>სამუშაო ჯგუფი - ჯერჯერობით არხართ გაწევრიანებული არცერთ სამუშაო ჯგუფში</p>
-{% endif %}
-<p>პერსონალური ქულა - {{ current_user.score }}</p>
+<style>
+    .profile {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        background-color: #f9f9f9;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .profile p {
+        font-size: 18px;
+        line-height: 1.6;
+        margin-bottom: 10px;
+    }
+
+    .profile p strong {
+        font-weight: bold;
+    }
+
+    .profile .group-info {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #e6f7ff;
+        border-radius: 5px;
+        border: 1px solid #b3d7ff;
+    }
+</style>
+
+<div class="profile">
+    <p><strong>Full Name:</strong> {{ current_user.username }}</p>
+    <p><strong>Personal ID:</strong> {{ current_user.id }}</p>
+    <p><strong>Email:</strong> {{ current_user.email }}</p>
+    <p><strong>Personal Score:</strong> {{ current_user.score }}</p>
+    {% if current_user.group %}
+    <div class="group-info">
+        <p><strong>Member of:</strong> "{{ current_user.group.name }}" work team</p>
+        <p><strong>Current Rank:</strong> {{ current_user.rank }}</p>
+    </div>
+    {% else %}
+    <p><strong>Work Team:</strong> Not currently a member of any work team</p>
+    {% endif %}
+    <p><strong>Activation Status:</strong> {{ current_user.is_active }}</p>
+</div>
 {% endblock content %}

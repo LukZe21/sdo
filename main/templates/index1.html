@@ -22,7 +22,7 @@
         <div class="carousel-container">
           <div class="cards">
             {% for element in event_elements %}
-              <div class="card" style="width: 25%;"><a href="{{ url_for('event_element', id=element.id) }}">
+              <div class="card" style="width: 25%;"><a href="{{ url_for('elements.event_element', id=element.id) }}">
                 <img src="static/imgs/DiscountnEventImages/{{element.img}}" class="card-img-top" alt="...">
                 <div class="card-body">
                   <h5 class="card-title">{{element.name}}</h5>
@@ -47,7 +47,7 @@
         <div class="carousel-container">
           <div class="cards2">
               {% for element in discount_elements %}
-              <div class="card2" style="width: 25%;"><a href="{{ url_for('discount_element', id=element.id) }}">
+              <div class="card2" style="width: 25%;"><a href="{{ url_for('elements.discount_element', id=element.id) }}">
                 <img src="static/imgs/DiscountnEventImages/{{element.img}}" class="card-img-top" alt="...">
                 <div class="card-body">
                   <h5 class="card-title">{{element.condition}}</h5>

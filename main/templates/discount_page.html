@@ -6,8 +6,4 @@
 
 <p>{{ discount_info.categories }}</p>
 <p>Expiration Duration: {{ expiration_duration }} Days</p>
-
-{% if current_user.is_authenticated %}
-<a href="{{ url_for('update_discount_element', id=discount_info.id)}}" >Update</a>
-{% endif %}
 {% endblock content %}

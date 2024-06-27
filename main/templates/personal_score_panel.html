@@ -1,0 +1,76 @@
+{% extends "new_base.html" %}
+{% block content %}
+<style>
+    .form-inline {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .form-inline input {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        flex: 1;
+    }
+
+    .form-inline button {
+        padding: 10px;
+        border: none;
+        background-color: #4CAF50;
+        color: white;
+        cursor: pointer;
+        border-radius: 4px;
+    }
+
+    .form-inline button:hover {
+        background-color: #45a049;
+    }
+    
+    .remove-btn {
+        background-color: #e74c3c;
+    }
+
+    .remove-btn:hover {
+        background-color: #c0392b;
+    }
+</style>
+
+<div class="media align-items-center">
+    <img class="rounded-circle account-img" src="{{ url_for('static', filename='imgs/profile_pics/' + user.image_file) }}" alt="Profile Picture" style="width: 200px; height: 200px">
+    <div class="media-body ml-3">
+        <h2 class="account-heading">{{ user.firstname }} {{ user.lastname }}</h2>
+        <p class="text-muted" style="font-size: smaller;">@{{ user.nickname }}</p>
+        <p class="text-muted">ID - {{ user.unique_id }}</p>
+        <p class="text-muted">ქულა - {{ user.score }}</p>
+    </div>
+</div>
+
+<br>
+
+<form action="{{ url_for('groups.remove_member', member_id=user.id) }}" method="POST" class="form-inline">
+    <button type="submit" class="remove-btn">Remove Member</button>
+</form>
+
+<form method="POST" action="" enctype="multipart/form-data">
+    {{ form.hidden_tag() }}
+
+    {% for field in form if field.name != 'csrf_token' and field.name != 'submit' %}
+    <div>
+        {{ field.label(class="form-control-label") }}
+        {{ field(class="form-control form-control-lg") }}
+        {% if field.errors %}
+            {% for error in field.errors %}
+                <span class="error">[{{ error }}]</span>
+            {% endfor %}
+        {% endif %}
+    </div>
+    {% endfor %}
+
+    <div>
+        {{ form.submit(class="btn") }}
+    </div>
+</form>
+
+
+{% endblock content %}

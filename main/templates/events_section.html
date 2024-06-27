@@ -15,13 +15,13 @@
   <body>
     <header>
         <nav>
-            <a href="{{ url_for('main') }}" class="logo2"> STUDENTS DAY OFFS</a>
+            <a href="{{ url_for('other.main') }}" class="logo2"> STUDENTS DAY OFFS</a>
             <form action="">
                <span><i class="fa-solid fa-magnifying-glass fa-sm"></i><input type="search" placeholder="მოძებნე ღონისძიებები & ფასდაკლებები ...." name="query"></span> 
             </form>
             <ul>
-                <li><a href="{{ url_for('events_page') }}">ღონისძიებები</a></li>
-                <li><a href="{{ url_for('discounts_page') }}">ფასდაკლებები</a></li>
+                <li><a href="{{ url_for('events.events_page') }}">ღონისძიებები</a></li>
+                <li><a href="{{ url_for('events.discounts_page') }}">ფასდაკლებები</a></li>
                 <li><div class="dropdown">
                     <a class="btn btn-secondary dropdown-toggle" href="./aboutus.html" role="button" data-toggle="dropdown" aria-expanded="false">
                       ჩვენს შესახებ
@@ -45,7 +45,7 @@
                     <div class="main">
                     <div class="col-md-6">
                       <div class="card">
-                        <a href="{{url_for('students_event_page')}}" style="background-color: rgb(0, 0, 117);">
+                        <a href="{{url_for('elements.students_event_page')}}" style="background-color: rgb(0, 0, 117);">
                         <div class="card-body">
                           <h2 class="card-title">საუნივერსიტეტო ღონისძიებები</h2>
                         </div>
@@ -54,7 +54,7 @@
                     </div>
                     <div class="col-md-6">
                       <div class="card">
-                        <a href=".{{url_for('sponsors_event_page')}}" style="background-color: rgb(255, 255, 255); color: rgb(0, 0, 117) ; border: 6px solid  rgb(0, 0, 117);" >
+                        <a href=".{{url_for('elements.sponsors_event_page')}}" style="background-color: rgb(255, 255, 255); color: rgb(0, 0, 117) ; border: 6px solid  rgb(0, 0, 117);" >
                         <div class="card-body">
                           <h2 class="card-title">კომპანიის ღონისძიებები</h2>
                         </div>

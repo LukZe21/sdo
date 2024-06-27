@@ -29,7 +29,15 @@ admin = Admin(app, name='SDO Administration', template_mode='bootstrap3')
 bcrypt = Bcrypt(app)
 
 login_manager = LoginManager(app)
-login_manager.login_view = 'login'
+login_manager.login_view = 'main.users.login'
 login_manager.login_message_category = 'info'
 
-from main import routes
+from main.users.routes import users
+from main.groups.routes import groups
+from main.elements.routes import elements
+from main.other.routes import other
+
+app.register_blueprint(users)
+app.register_blueprint(groups)
+app.register_blueprint(elements)
+app.register_blueprint(other)

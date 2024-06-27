@@ -27,7 +27,7 @@
 <body>
     <header>
         <nav class="navbar">
-            <a href="{{ url_for('main') }}" class="logo2"> STUDENTS DAY OFFS</a>
+            <a href="{{ url_for('other.main') }}" class="logo2"> STUDENTS DAY OFFS</a>
             <div class="searchBar">
                 <form id="searchForm" action="/" method="GET">
                     <button type="submit"><i class="fas fa-search"></i></button>
@@ -36,9 +36,9 @@
             </div>
 
             <ul>
-                <li><a href="{{ url_for('groups_section')}}">Expanding Mind</a></li>
-                <li><a href="{{ url_for('events_page')}}">ღონისძიებები</a></li>
-                <li><a href="{{ url_for('discounts_page')}}">ფასდაკლებები</a></li>
+                <li><a href="{{ url_for('groups.groups_section')}}">Expanding Mind</a></li>
+                <li><a href="{{ url_for('elements.events_page')}}">ღონისძიებები</a></li>
+                <li><a href="{{ url_for('elements.discounts_page')}}">ფასდაკლებები</a></li>
                 <li><div class="dropdown">
                   <a class="btn btn-secondary dropdown-toggle" href="./aboutus.html" role="button" data-toggle="dropdown" aria-expanded="false">
                     ჩვენს შესახებ

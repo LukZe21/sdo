@@ -152,3 +152,9 @@ document.addEventListener("DOMContentLoaded", function () {
   nextButton.addEventListener("click", moveForward);
   prevButton.addEventListener("click", moveBackward);
 });
+
+
+function toggleDropdown() {
+  var dropdownMenu = document.getElementById("dropdownMenu");
+  dropdownMenu.classList.toggle("show-dropdown");
+}

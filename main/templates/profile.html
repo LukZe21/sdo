@@ -1,48 +1,97 @@
-{% extends "base.html" %}
+{% extends "new_base.html" %}
 {% block content %}
-<style>
-    .profile {
-        max-width: 600px;
-        margin: 0 auto;
-        padding: 20px;
-        border: 1px solid #ccc;
-        border-radius: 10px;
-        background-color: #f9f9f9;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .profile p {
-        font-size: 18px;
-        line-height: 1.6;
-        margin-bottom: 10px;
-    }
-
-    .profile p strong {
-        font-weight: bold;
-    }
-
-    .profile .group-info {
-        margin-top: 20px;
-        padding: 15px;
-        background-color: #e6f7ff;
-        border-radius: 5px;
-        border: 1px solid #b3d7ff;
-    }
-</style>
-
-<div class="profile">
-    <p><strong>Full Name:</strong> {{ current_user.username }}</p>
-    <p><strong>Personal ID:</strong> {{ current_user.id }}</p>
-    <p><strong>Email:</strong> {{ current_user.email }}</p>
-    <p><strong>Personal Score:</strong> {{ current_user.score }}</p>
-    {% if current_user.group %}
-    <div class="group-info">
-        <p><strong>Member of:</strong> "{{ current_user.group.name }}" work team</p>
-        <p><strong>Current Rank:</strong> {{ current_user.rank }}</p>
+<div class="content-section">
+    <div class="media align-items-center">
+        <img class="rounded-circle account-img" src="{{ image_file }}" alt="Profile Picture" style="width: 200px; height: 200px">
+        <div class="media-body ml-3">
+            <h2 class="account-heading">{{ current_user.firstname }} {{ current_user.lastname }}</h2>
+            <p class="text-muted" style="font-size: smaller;">@{{ current_user.nickname }}</p>
+            <p class="text-muted">ID - {{ current_user.unique_id }}</p>
+            <p class="text-muted">ქულა - {{ current_user.score }}</p>
+            {% if current_user.in_group %}
+            <div style="background-color: rgba(255, 255, 255, 0.603); padding: 2px; border: 2px solid rgba(0, 0, 0, 0.507); border-radius: 10px;">
+                <p class="text-muted">გუნდი - '{{ current_user.group.name}}'</p>
+                <p class="text-muted">წოდება - {{ current_user.rank }}</p>
+                <p class="text-muted">გუნდის ქულა - {{ current_user.group.score }}</p>
+            </div>
+            {% endif %}
+        </div>
     </div>
-    {% else %}
-    <p><strong>Work Team:</strong> Not currently a member of any work team</p>
-    {% endif %}
-    <p><strong>Activation Status:</strong> {{ current_user.is_active }}</p>
+    <form method="POST" action="" enctype="multipart/form-data" class="mt-4">
+        {{ form.hidden_tag() }}
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4">Account Info</legend>
+            <div class="form-row">
+                <div class="col-md-6 col-sm-12 mb-3">
+                    {{ form.firstname.label(class="form-control-label") }}
+                    {% if form.firstname.errors %}
+                        {{ form.firstname(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.firstname.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.firstname(class="form-control") }}
+                    {% endif %}
+                </div>
+                <div class="col-md-6 col-sm-12 mb-3">
+                    {{ form.lastname.label(class="form-control-label") }}
+                    {% if form.lastname.errors %}
+                        {{ form.lastname(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.lastname.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.lastname(class="form-control") }}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="col-md-6 col-sm-12 mb-3">
+                    {{ form.nickname.label(class="form-control-label") }}
+                    {% if form.nickname.errors %}
+                        {{ form.nickname(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.nickname.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.nickname(class="form-control") }}
+                    {% endif %}
+                </div>
+                <div class="col-md-6 col-sm-12 mb-3">
+                    {{ form.email.label(class="form-control-label") }}
+                    {% if form.email.errors %}
+                        {{ form.email(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.email.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.email(class="form-control") }}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="form-group">
+                {{ form.picture.label(class="form-control-label") }}
+                {{ form.picture(class="form-control-file") }}
+                {% if form.picture.errors %}
+                    <div class="text-danger mt-2">
+                        {% for error in form.picture.errors %}
+                            <span>{{ error }}</span><br>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </fieldset>
+        <div class="form-group">
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+    </form>
 </div>
 {% endblock content %}

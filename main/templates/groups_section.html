@@ -1,20 +1,27 @@
 {% extends "new_base.html" %}
 {% block content %}
 <style>
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f1f1f1;
+        margin: 0;
+        padding: 0;
+    }
+
     .container {
-        max-width: 800px;
-        margin: 0 auto;
+        max-width: 1200px;
+        margin: 20px auto;
         padding: 20px;
     }
 
     .custom-button {
         padding: 15px 30px;
-        font-family: 'Arial', sans-serif;
         font-weight: bold;
+        font-size: 18px;
         width: 100%;
         max-width: 350px;
         color: #fff;
-        background: linear-gradient(145deg, #32CD32, #228B22);
+        background: linear-gradient(145deg, #28a745, #218838);
         border: none;
         border-radius: 10px;
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
@@ -28,7 +35,7 @@
     }
 
     .custom-button:hover {
-        background: linear-gradient(145deg, #228B22, #32CD32);
+        background: linear-gradient(145deg, #218838, #28a745);
         transform: translateY(-3px);
         box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
     }
@@ -38,38 +45,68 @@
         box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
     }
 
+    .groups-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+    }
+
     .group {
-        background-color: #f9f9f9;
+        background-color: #fff;
         padding: 20px;
-        margin-top: 30px;
         border-radius: 10px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .group img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: 0;
+        opacity: 0.7; /* Adjust opacity as needed */
+    }
+
+    .group-content {
+        position: relative;
+        z-index: 1;
+        background: rgba(255, 255, 255, 0.9); /* Slightly opaque background for readability */
+        padding: 10px;
+        border-radius: 10px;
+    }
+
+    .group:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
 
     .group-name {
         font-size: 24px;
         margin-bottom: 10px;
         color: #333;
+        font-weight: bold;
     }
 
     .group-description {
         margin-bottom: 10px;
+        color: #666;
+        font-size: 16px;
     }
 
-    .group-category {
+    .group-category, .group-score, .group-members {
         font-style: italic;
-        margin-bottom: 10px;
-        color: #666;
+        margin-bottom: 5px;
+        color: #999;
+        font-size: 14px;
     }
 
-    .group-members {
-        color: #666;
-    }
-
-    .group-list {
-        list-style-type: none;
-        padding: 0;
-        margin: 0;
+    .group:first-child {
+        grid-column: span 2;
     }
 
     /* Media query for screens smaller than 768px */
@@ -85,23 +122,18 @@
 
         .group {
             padding: 15px;
-            margin-top: 20px;
         }
 
         .group-name {
             font-size: 20px;
         }
 
-        .group-description {
+        .group-description, .group-category, .group-members, .group-score {
             font-size: 14px;
         }
 
-        .group-category {
-            font-size: 12px;
-        }
-
-        .group-members {
-            font-size: 12px;
+        .group:first-child {
+            grid-column: span 1;
         }
     }
 </style>
@@ -109,17 +141,33 @@
 {% if not current_user.in_group %}
 <a href="https://docs.google.com/forms/d/1dcCbT2LzL4p533jfhbJaCCRTSD3u3C-3EQLn4eD1ugo/edit" target="_blank" class="custom-button">Create Your Work Team</a>
 {% else %}
-<a href="" class="custom-button" style="background: rgb(238, 65, 65);" onclick="alert('თქვენ ხართ უკვე გაწევრიანებული სამუშაო გუნდში')">Create Your Work Team</a>
+<a href="" class="custom-button" style="background: #dc3545;" onclick="alert('You are already part of a work team')">Create Your Work Team</a>
 {% endif %}
 
 <div class="container">
-    {% for group in groups %}
-    <a href="{{ url_for('group_page', id=group.id) }}"><div class="group">
-        <div class="group-name">{{ group.name }}</div>
-        <div class="group-description">{{ group.description }}</div>
-        <div class="group-category">{{ group.category }}</div>
-        <div class="group-members">Members: {{ group.members|length }}</div>
-    </div></a>
-    {% endfor %}
+    <div class="groups-grid">
+        {% for group in groups %}
+        <a href="{{ url_for('groups.group_page', id=group.id) }}" class="group-link">
+            {% if group.image_file != 'default.png' %}
+                <div class="group">
+                    <img src="{{ url_for('static', filename='imgs/team_pics/' + group.image_file) }}" alt="{{ group.name }}">
+                    <div class="group-content">
+                        <div class="group-name">{{ group.name }}</div>
+                        <div class="group-category">{{ group.category }}</div>
+                        <div class="group-score">Score: {{ group.score }}</div>
+                        <div class="group-members">Members: {{ group.members|length }}</div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="group">
+                    <div class="group-name">{{ group.name }}</div>
+                    <div class="group-category">{{ group.category }}</div>
+                    <div class="group-score">Score: {{ group.score }}</div>
+                    <div class="group-members">Members: {{ group.members|length }}</div>
+                </div>
+            {% endif %}
+        </a>
+        {% endfor %}
+    </div>
 </div>
 {% endblock %}

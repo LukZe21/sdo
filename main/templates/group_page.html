@@ -1,43 +1,243 @@
 {% extends "new_base.html" %}
 {% block content %}
     <style>
-        .join-button, .leave-button {
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f1f1f1;
+            margin: 0;
+            padding: 0;
+        }
+
+        .btn {
             padding: 10px 20px;
-            background-color: #007bff;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            margin-right: 10px; /* Added margin between buttons */
+            margin-right: 10px;
+            transition: background-color 0.3s ease;
         }
 
-        .leave-button{
-            background-color: rgb(240, 60, 60);
+        .btn-primary {
+            background-color: #007bff;
         }
 
-        .join-button:hover, .leave-button:hover {
+        .btn-primary:hover {
             background-color: #0056b3;
         }
-    </style>
-    <div class="group-details">
-        <h1>Group: {{ group.name }}</h1>
-        <p>Group Score: {{ group.score }}</p>
-        <p>ხელმძღვანელი: {{ leader.username }}</p>
 
-        <h2>ჯგუფის წევრები:</h2>
-        <ul class="member-list">
-            {% for member in group.members %}
-                <li>{{ member.username }}, </li>
-            {% endfor %}
-        </ul>
+        .btn-danger {
+            background-color: #f03c3c;
+        }
+
+        .btn-danger:hover {
+            background-color: #d32f2f;
+        }
+
+        .group-details, .logs-container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2 {
+            font-family: 'Arial', sans-serif;
+            color: #333;
+        }
+
+        .group-details p, .logs-list p {
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-top: 20px;
+            border-radius: 10px;
+        }
+
+        .member-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .member-table th, .member-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .member-table th {
+            background-color: #f2f2f2;
+        }
+
+        .member-table tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .control-panel-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .control-panel-link:hover {
+            background-color: #0056b3;
+        }
+
+        .logs-list {
+            margin-top: 10px;
+        }
+
+        .logs-list p:hover {
+            border-radius: 7px;
+            cursor: pointer;
+            transition: 0.1s;
+            background: rgb(255, 255, 255);
+        }
+
+        .pagination {
+            margin-top: 20px;
+        }
+
+        .page-item.disabled .page-link {
+            color: #aaa;
+        }
+
+        .page-item.active .page-link {
+            background-color: #007bff;
+            border-color: #007bff;
+            color: white;
+        }
+
+        .page-link {
+            color: #007bff;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .page-link:hover {
+            background-color: #f0f0f0;
+        }
+
+        .group-image {
+            width: 100%; /* Default width for desktop */
+            height: 315px; /* Default height for desktop */
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .member-profile-pic {
+            width: 30px;
+            height: 30px;
+            margin-right: 10px;
+            border-radius: 50%;
+        }
+    </style>
+
+    <div class="group-details">
+        <img src="{{ url_for('static', filename='imgs/team_pics/' + group.image_file) }}" alt="{{ group.name }}" class="group-image">
         
+        <h1>{{ group.name }}</h1>
+        <p>Group Score: {{ group.score }}</p>
+        <p>Leader: {{ leader.firstname }} {{ leader.lastname }}</p>
+
+        <h2>Members:</h2>
+        <div class="table-responsive">
+            <table class="member-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>სრული სახელი</th>
+                        <th>წოდება</th>
+                        <th>პერსონალური ქულა</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for member in group.members %}
+                        <tr>
+                            <td>{{ member.unique_id }}</td>
+                            <td>
+                                <img src="{{ url_for('static', filename='imgs/profile_pics/' + member.image_file) }}" alt="Profile Picture" class="member-profile-pic">
+                                {{ member.firstname }} {{ member.lastname }} <span class="text-muted" style="font-size: smaller;">@{{ member.nickname }}</span>
+                            </td>
+                            <td>{{ member.rank }}</td>
+                            <td>{{ member.score }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <br>
+        <h5>გუნდის შესახებ</h5>
+        <div class="description">
+            <p>{{ group.description }}</p>
+        </div>
+        
+
         {% if not current_user.in_group %}
-        <form method="POST" action="">
-            <button class="join-button" type="submit">Join Group</button>
-        </form>
+            <br>
+            <form method="POST" action="">
+                <p>გინდა ამ გუნდში შესვა?</p>
+                <a href="{{ group.group_form }}" class="btn btn-primary" target="_blank">შეავსე ფორმა</a>
+            </form>
         {% endif %}
-        {% if current_user.in_group %}
-            <a href="{{ url_for('leave_group', id=group.id) }}" class="leave-button">Leave Group</a>
+        
+        <br>
+        {% if current_user.in_group and current_user.group.id == group.id and current_user.unique_id != leader.unique_id %}
+            <a href="{{ url_for('groups.leave_group', id=group.id) }}" class="btn btn-danger">Leave Group</a>
         {% endif %}
+
+        {% if current_user.unique_id == leader.unique_id %}
+        <a href="{{ url_for('groups.control_panel', id=group.id) }}" class="control-panel-link">Control Panel</a>
+    {% endif %}
     </div>
+
+    {% if current_user.group_id == group.id %}
+        <div class="logs-container">
+            <h2>Logs</h2>
+            <div class="logs-list">
+                {% for group_log in group_logs.items %}
+                    <p>{{ group_log.log }}</p>
+                    <p style="color: rgba(32, 32, 32, 0.705)">{{ group_log.time }}</p>
+                {% endfor %}
+            </div>
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% for page_num in group_logs.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                        {% if page_num %}
+                            {% if group_logs.page == page_num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ page_num }}</span>
+                                </li>
+                            {% else %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('groups.group_page', id=group.id, page=page_num) }}">{{ page_num }}</a>
+                                </li>
+                            {% endif %}
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </nav>
+        </div>
+    {% endif %}
 {% endblock content %}

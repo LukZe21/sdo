@@ -1,0 +1,229 @@
+{% extends "new_base.html" %}
+{% block content %}
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f1f1f1;
+        margin: 0;
+        padding: 0;
+    }
+
+    .group-container {
+        max-width: 900px;
+        margin: 40px auto;
+        background: #ffffff;
+        padding: 30px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 15px;
+    }
+
+    .group-container h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        font-family: 'Arial', sans-serif;
+        color: #333;
+        font-size: 28px;
+    }
+
+    .form-inline {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .form-inline input {
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        flex: 1;
+        min-width: 150px;
+    }
+
+    .form-inline button {
+        padding: 12px 25px;
+        border: none;
+        background-color: #007bff;
+        color: white;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: background-color 0.3s;
+        min-width: 120px;
+    }
+
+    .form-inline button:hover {
+        background-color: #0056b3;
+    }
+
+    .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-top: 20px;
+        border-radius: 10px;
+    }
+
+    .members-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 600px;
+        background: #f9f9f9;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .members-table th, .members-table td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .members-table th {
+        background-color: #343a40;
+        color: white;
+        font-family: 'Arial', sans-serif;
+        color: #fff;
+    }
+
+    .members-table tbody tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    .members-table tbody tr {
+        transition: background-color 0.3s;
+    }
+
+    .member-link {
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        align-items: center;
+    }
+
+    .member-link img {
+        width: 30px;
+        height: 30px;
+        margin-right: 10px;
+        border-radius: 50%;
+    }
+
+    .member-link:hover {
+        background-color: #e9ecef;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-control-label {
+        font-weight: bold;
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    .form-control {
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .form-control-lg {
+        font-size: 1.25rem;
+    }
+
+    .btn {
+        padding: 12px 25px;
+        border: none;
+        background-color: #28a745;
+        color: white;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: background-color 0.3s;
+        display: block;
+        margin: 0 auto;
+    }
+
+    .btn:hover {
+        background-color: #218838;
+    }
+
+    .error {
+        color: red;
+        font-size: 0.875rem;
+    }
+</style>
+
+<div class="group-container">
+    <h2>{{ group.name }}</h2>
+
+    <form method="POST" action="" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+    
+        {% for field in form if field.name != 'csrf_token' and field.name != 'submit' %}
+        {% if field.name == 'group_form' %}
+            <div class="form-group">
+                {{ field.label(class="form-control-label") }}
+                {{ field(class="form-control form-control-lg") }}
+                {% if field.errors %}
+                    {% for error in field.errors %}
+                        <span class="error">[{{ error }}]</span>
+                    {% endfor %}
+                {% endif %}
+            <a class="text-muted" href="#">არ იცი რა არის გუნდის შესავსები ფორმა?</a>
+            </div>
+        {% else %}
+            <div class="form-group">
+                {{ field.label(class="form-control-label") }}
+                {{ field(class="form-control form-control-lg") }}
+                {% if field.errors %}
+                    {% for error in field.errors %}
+                        <span class="error">[{{ error }}]</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        {% endif %}
+        {% endfor %}
+    
+        <div class="form-group">
+            {{ form.submit(class="btn") }}
+        </div>
+    </form>
+
+    <h5>გაგზავნე მოწვევა</h5>
+    <form action="{{ url_for('groups.add_member', id=group.id) }}" method="POST" class="form-inline">
+        <input type="text" name="ID" placeholder="User ID" required>
+        <button type="submit">გაგზავნა</button>
+    </form>
+
+    <h2>Members:</h2>
+    <div class="table-responsive">
+        <table class="members-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>სრული სახელი</th>
+                    <th>წოდება</th>
+                    <th>პერსონალური ქულა</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for member in group.members %}
+                <tr>
+                    <td>{{ member.unique_id }}</td>
+                    <td>
+                        <a href="{{ url_for('groups.member_control_panel', id=group.id, member_id=member.id) }}" class="member-link">
+                            <img src="{{ url_for('static', filename='imgs/profile_pics/' + member.image_file) }}" alt="Profile Picture">
+                            {{ member.firstname }} {{ member.lastname }} <span class="text-muted" style="font-size: smaller;"> @{{ member.nickname }}</span>
+                        </a>
+                    </td>
+                    <td>{{ member.rank }}</td>
+                    <td>{{ member.score }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

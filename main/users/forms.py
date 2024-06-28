@@ -8,9 +8,9 @@ from main.models import User
 
 
 class LoginForm(FlaskForm):
-    email = EmailField('Email', validators=[DataRequired()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    submit = SubmitField('Login')
+    email = EmailField('მაილი', validators=[DataRequired()])
+    password = PasswordField('პაროლი', validators=[DataRequired()])
+    submit = SubmitField('შესვლა')
 
 
 class RegisterForm(FlaskForm):
@@ -18,17 +18,17 @@ class RegisterForm(FlaskForm):
                            validators=[DataRequired()])
     lastname = StringField('გვარი',
                            validators=[DataRequired()])
-    nickname = StringField('მეტსახელი (შეგიძლიათ გამოტოვოთ)',
+    nickname = StringField('მეტსახელი',
                            validators=[DataRequired()])
-    email = EmailField('Email',
+    email = EmailField('მაილი',
                        validators=[DataRequired()])
     
-    password = PasswordField('Password',
+    password = PasswordField('პაროლი',
                             validators=[DataRequired()])
-    confirm_password = PasswordField('Confirm Password',
+    confirm_password = PasswordField('გაიმეორეთ პაროლი',
                                     validators=[DataRequired(), EqualTo('password')])
     
-    submit = SubmitField('Register')
+    submit = SubmitField('რეგისტრაცია')
 
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()
@@ -41,14 +41,14 @@ class UpdateAccountForm(FlaskForm):
                            validators=[DataRequired()])
     lastname = StringField('გვარი',
                            validators=[DataRequired()])
-    nickname = StringField('მეტსახელი (შეგიძლიათ გამოტოვოთ)',
+    nickname = StringField('მეტსახელი',
                            validators=[DataRequired()])
-    email = EmailField('Email',
+    email = EmailField('მაილი',
                        validators=[DataRequired()])
     
     picture = FileField('Update Profile Picture', validators=[FileAllowed(['jpg', 'png'])])
 
-    submit = SubmitField('Update')
+    submit = SubmitField('განახლება')
 
     def validate_nickname(self, nickname):
         if nickname.data != current_user.nickname:

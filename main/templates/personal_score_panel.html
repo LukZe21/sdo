@@ -1,76 +1,199 @@
 {% extends "new_base.html" %}
 {% block content %}
-<style>
+<style> 
+    body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        background-color: #f1f1f1;
+        margin: 0;
+        padding: 0;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 20px auto;
+        padding: 20px;
+    }
+
+    .media {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        background: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+    }
+
+    .account-img {
+        border-radius: 50%;
+        width: 200px;
+        height: 200px;
+        object-fit: cover;
+        margin-right: 20px;
+    }
+
+    .media-body {
+        flex: 1;
+        min-width: 0; /* Ensures content is responsive */
+    }
+
+    .account-heading {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #333;
+        margin: 0;
+    }
+
+    .text-muted {
+        color: #666;
+        margin: 5px 0;
+    }
+
     .form-inline {
         display: flex;
+        flex-wrap: wrap;
         gap: 10px;
         margin-bottom: 20px;
     }
 
-    .form-inline input {
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        flex: 1;
-    }
-
     .form-inline button {
-        padding: 10px;
+        padding: 10px 20px;
         border: none;
-        background-color: #4CAF50;
+        background-color: #e74c3c;
         color: white;
         cursor: pointer;
         border-radius: 4px;
+        transition: background-color 0.3s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .green button {
+        background-color: #28a745;
     }
 
     .form-inline button:hover {
-        background-color: #45a049;
-    }
-    
-    .remove-btn {
-        background-color: #e74c3c;
+        background-color: #c0392b;
     }
 
-    .remove-btn:hover {
-        background-color: #c0392b;
+    .green button:hover {
+        background-color: #4be26e;
+    }
+
+
+    form div {
+        margin-bottom: 15px;
+    }
+
+    .form-control-label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    .form-control:focus {
+        border-color: #4CAF50;
+        box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+    }
+
+    .error {
+        color: #e74c3c;
+        font-size: 0.9em;
+    }
+
+    @media (max-width: 767px) {
+        .media {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .account-img {
+            margin-bottom: 20px;
+            margin-right: 0;
+        }
+
+        .account-heading {
+            font-size: 1.5rem;
+        }
+
+        .form-inline {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .form-inline button {
+            width: 100%;
+        }
     }
 </style>
 
-<div class="media align-items-center">
-    <img class="rounded-circle account-img" src="{{ url_for('static', filename='imgs/profile_pics/' + user.image_file) }}" alt="Profile Picture" style="width: 200px; height: 200px">
-    <div class="media-body ml-3">
-        <h2 class="account-heading">{{ user.firstname }} {{ user.lastname }}</h2>
-        <p class="text-muted" style="font-size: smaller;">@{{ user.nickname }}</p>
-        <p class="text-muted">ID - {{ user.unique_id }}</p>
-        <p class="text-muted">ქულა - {{ user.score }}</p>
+<div class="container">
+    <div class="media">
+        <img class="rounded-circle account-img" src="{{ url_for('static', filename='imgs/profile_pics/' + user.image_file) }}" alt="Profile Picture">
+        <div class="media-body">
+            <h2 class="account-heading">{{ user.firstname }} {{ user.lastname }}</h2>
+            <p class="text-muted">@{{ user.nickname }}</p>
+            <p class="text-muted">ID - {{ user.unique_id }}</p>
+            <p class="text-muted">ქულა - {{ user.score }}</p>
+        </div>
     </div>
+    <hr>
+    <form action="{{ url_for('groups.remove_member', member_id=user.id) }}" method="POST" class="form-inline">
+        <button type="submit">წევრის გაგდება</button>
+    </form>
+    <hr>
+    <div class="form-inline green">
+        <button data-toggle="modal" data-target="#assignModal" type="submit">დანიშნე ხელმძღვანელად</button>
+    </div>
+    <hr>
+    <!-- Modal -->
+    <div class="modal fade" id="assignModal" tabindex="-1" role="dialog" aria-labelledby="assignModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title" id="assignModalLabel">ამ ქმედების განხორციელებით შენ ჩამოგერთმევა ხელმძღვანელის ყველანაირი უფლებები</h6>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-footer">
+                    <!-- Close button -->
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        
+                    <!-- Form for deletion -->
+                    <form action="{{ url_for('groups.make_leader', member_id=user.id) }}" method="POST">
+                        <input class="btn btn-danger" type="submit" value="ვეთანხმები, გახადე ხელმძღვანელი">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <form method="POST" action="" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+
+        {% for field in form if field.name != 'csrf_token' and field.name != 'submit' %}
+        <div>
+            {{ field.label(class="form-control-label") }}
+            {{ field(class="form-control form-control-lg") }}
+            {% if field.errors %}
+                {% for error in field.errors %}
+                    <span class="error">[{{ error }}]</span>
+                {% endfor %}
+            {% endif %}
+        </div>
+        {% endfor %}
+
+        <div>
+            {{ form.submit(class="btn") }}
+        </div>
+    </form>
 </div>
-
-<br>
-
-<form action="{{ url_for('groups.remove_member', member_id=user.id) }}" method="POST" class="form-inline">
-    <button type="submit" class="remove-btn">Remove Member</button>
-</form>
-
-<form method="POST" action="" enctype="multipart/form-data">
-    {{ form.hidden_tag() }}
-
-    {% for field in form if field.name != 'csrf_token' and field.name != 'submit' %}
-    <div>
-        {{ field.label(class="form-control-label") }}
-        {{ field(class="form-control form-control-lg") }}
-        {% if field.errors %}
-            {% for error in field.errors %}
-                <span class="error">[{{ error }}]</span>
-            {% endfor %}
-        {% endif %}
-    </div>
-    {% endfor %}
-
-    <div>
-        {{ form.submit(class="btn") }}
-    </div>
-</form>
-
-
-{% endblock content %}
+{% endblock %}

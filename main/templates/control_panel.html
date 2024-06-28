@@ -51,8 +51,16 @@
         min-width: 120px;
     }
 
+    .danger button{
+        background-color: #e74c3c;
+    }
+
     .form-inline button:hover {
         background-color: #0056b3;
+    }
+
+    .danger button:hover{
+        background-color: red;
     }
 
     .table-responsive {
@@ -157,7 +165,7 @@
 
 <div class="group-container">
     <h2>{{ group.name }}</h2>
-
+    <hr>
     <form method="POST" action="" enctype="multipart/form-data">
         {{ form.hidden_tag() }}
     
@@ -190,13 +198,13 @@
             {{ form.submit(class="btn") }}
         </div>
     </form>
-
+    <hr>
     <h5>გაგზავნე მოწვევა</h5>
     <form action="{{ url_for('groups.add_member', id=group.id) }}" method="POST" class="form-inline">
         <input type="text" name="ID" placeholder="User ID" required>
         <button type="submit">გაგზავნა</button>
     </form>
-
+    <hr>
     <h2>Members:</h2>
     <div class="table-responsive">
         <table class="members-table">
@@ -225,5 +233,34 @@
             </tbody>
         </table>
     </div>
-</div>
+    <hr>
+    <h2>საშიში ზონა</h2>
+
+    <!-- Button trigger modal -->
+    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">
+        წაშალე გუნდი
+    </button>
+    
+    <!-- Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">გინდა წაშალო ეს გუნდი?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-footer">
+                    <!-- Close button -->
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">არა, არ წაშალო</button>
+                    
+                    <!-- Form for deletion -->
+                    <form action="{{ url_for('groups.delete_team', id=group.id) }}" method="POST">
+                        <input class="btn btn-danger" type="submit" value="დიახ, წაშალე">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

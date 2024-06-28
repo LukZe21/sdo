@@ -2,7 +2,7 @@
 {% block content %}
     <style>
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
             background-color: #f1f1f1;
             margin: 0;
             padding: 0;
@@ -38,13 +38,12 @@
             max-width: 900px;
             margin: 20px auto;
             padding: 20px;
-            background-color: #f9f9f9;
+            background-color: #fff;
             border-radius: 10px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         h1, h2 {
-            font-family: 'Arial', sans-serif;
             color: #333;
         }
 
@@ -65,7 +64,7 @@
             width: 100%;
             border-collapse: collapse;
             min-width: 600px;
-            background: #f9f9f9;
+            background: #fff;
             border-radius: 10px;
             overflow: hidden;
         }
@@ -135,8 +134,8 @@
         }
 
         .group-image {
-            width: 100%; /* Default width for desktop */
-            height: 315px; /* Default height for desktop */
+            width: 100%;
+            height: auto;
             border-radius: 10px;
             margin-bottom: 20px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -147,6 +146,13 @@
             height: 30px;
             margin-right: 10px;
             border-radius: 50%;
+        }
+
+        .description {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
         }
     </style>
 
@@ -159,7 +165,7 @@
 
         <h2>Members:</h2>
         <div class="table-responsive">
-            <table class="member-table">
+            <table class="member-table table table-hover">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -183,17 +189,16 @@
                 </tbody>
             </table>
         </div>
-        <br>
-        <h5>გუნდის შესახებ</h5>
+
         <div class="description">
+            <h5>გუნდის შესახებ</h5>
             <p>{{ group.description }}</p>
         </div>
         
-
         {% if not current_user.in_group %}
             <br>
             <form method="POST" action="">
-                <p>გინდა ამ გუნდში შესვა?</p>
+                <p>გინდა ამ გუნდში შესვლა?</p>
                 <a href="{{ group.group_form }}" class="btn btn-primary" target="_blank">შეავსე ფორმა</a>
             </form>
         {% endif %}

@@ -9,11 +9,18 @@ from main.groups.utils import save_picture
 
 groups = Blueprint('groups', __name__)
 
-def add_log(id, log, user_id, user_log):
-    log = GroupLogs(group_id=id, log=log)
-    new_notification = NotificationLogs(user_id=user_id, log=user_log)
-    db.session.add(log)
-    db.session.add(new_notification)
+def add_log(id="", log="", user_id="", user_log=""):
+    if user_id != "" and user_log != "":
+        notifications = NotificationLogs.query.filter_by(user_id=user_id).all()
+        if len(notifications) >= 5:
+            for notification in notifications:
+                db.session.delete(notification)
+            db.session.commit()
+        new_notification = NotificationLogs(user_id=user_id, log=user_log)
+        db.session.add(new_notification)
+    elif id != "" and log != "":
+        log = GroupLogs(group_id=id, log=log)
+        db.session.add(log)
     db.session.commit()
 
 
@@ -52,15 +59,25 @@ def handle_notification():
 @groups.route('/groups', methods=['POST', 'GET'])
 def groups_section():
     groups = Group.query.all()
+    if request.method == "POST":
+        if request.form.get("category") == 'ყველა':
+            groups = Group.query.all()
+        elif request.form.get("category") == 'ტექნოლოგიები & ინოვაციები':
+            groups = Group.query.filter_by(category='ტექნოლოგიები & ინოვაციები').all()
+        elif request.form.get("category") == 'არაფორმალური განათლება':
+            groups = Group.query.filter_by(category='არაფორმალური განათლება').all()
+        elif request.form.get("category") == 'მარკეტინგი':
+            groups = Group.query.filter_by(category='მარკეტინგი').all()
+        elif request.form.get("category") == 'სპორტი':
+            groups = Group.query.filter_by(category='სპორტი').all()
     try:
-        notification_log = NotificationLogs.query.filter_by(user_id=current_user.id).order_by(NotificationLogs.id.desc())
         page = request.args.get('page', 1, type=int)
+        notification_log = NotificationLogs.query.filter_by(user_id=current_user.id).order_by(NotificationLogs.id.desc())
         group_logs = GroupLogs.query.filter_by(group_id=current_user.group_id).order_by(GroupLogs.id.desc()).paginate(page=page, per_page=5)
 
         return render_template('groups_section.html', groups=groups, group_logs=group_logs, notification_log=notification_log)
     except:
         None
-
     return render_template('groups_section.html', groups=groups)
 
 @groups.route('/groups/<int:id>', methods=['POST', 'GET'])
@@ -70,14 +87,15 @@ def group_page(id):
     leader = User.query.filter_by(unique_id=group.leader_id).first()
     try:
         group_logs = GroupLogs.query.filter_by(group_id=current_user.group_id).order_by(GroupLogs.id.desc()).paginate(page=page, per_page=5)
-        notification_log = NotificationLogs.query.filter_by(user_id=current_user.id)
+        notification_log = NotificationLogs.query.filter_by(user_id=current_user.id).order_by(NotificationLogs.id.desc()).paginate(page=page, per_page=5)
+
+        if current_user.unique_id == group.leader_id:
+            group.assign_rank()
 
         return render_template('group_page.html', group=group, leader=leader, group_logs=group_logs, notification_log=notification_log)
     except:
         group_logs = GroupLogs.query.filter_by(group_id=id).order_by(GroupLogs.id.desc()).paginate(page=page, per_page=5)
 
-    if current_user.unique_id == group.leader_id:
-        group.assign_rank()
     # if request.method == "POST":
     #     try:
     #         user_id = current_user.id
@@ -115,7 +133,7 @@ def control_panel(id):
     try:
         group_logs = GroupLogs.query.filter_by(group_id=current_user.group_id).order_by(GroupLogs.id.desc()).paginate(page=page, per_page=5)
         group = Group.query.filter_by(id=id).first()
-        notification_Log = NotificationLogs.query.filter_by(user_id=current_user.id) 
+        notification_Log = NotificationLogs.query.filter_by(user_id=current_user.id).order_by(NotificationLogs.id.desc())
     except:
         None
     try:
@@ -153,7 +171,7 @@ def member_control_panel(id, member_id):
     try:
         page = request.args.get('page', 1, type=int)
         group_logs = GroupLogs.query.filter_by(group_id=current_user.group_id).order_by(GroupLogs.id.desc()).paginate(page=page, per_page=5)
-        notification_log = NotificationLogs.query.filter_by(user_id=current_user.id)
+        notification_log = NotificationLogs.query.filter_by(user_id=current_user.id).order_by(NotificationLogs.id.desc())
     except:
         None
     try:
@@ -223,12 +241,28 @@ def remove_member(member_id):
     group_id = user.group_id
     log_msg = f"{user.firstname} {user.lastname} (@{user.nickname}) გააგდეს ჯგუფიდან."
 
-    add_log(group_id , log_msg)
+    user_msg = f"თქვენ გაგაგდეს გუნდიდან"
+    add_log(group_id , log_msg, user.id, user_msg)
     
     user.group_id = None
     user.group = None
     flash(f'Successfully removed {user.firstname} {user.lastname} (@{user.nickname}) from the group', 'warning')    
     return redirect(url_for('groups.control_panel', id=group_id))
+
+
+@groups.route('/groups/<int:member_id>/make_member_leader', methods=['POST'])
+def make_leader(member_id):
+    user = User.query.get(member_id)
+    group = Group.query.get(user.group_id)
+    previous_leader = User.query.filter_by(unique_id=group.leader_id).first()
+    previous_leader.rank = 'წევრი'
+    user.rank = 'ხელმძღვანელი'
+    group.leader_id = user.unique_id
+    add_log(user_id=user.id, user_log=f"თქვენ ხართ გუნდის ახალი ხელმძღვანელი!")
+    db.session.commit()
+    
+    return redirect(url_for('groups.group_page', id=group.id))
+
 
 @groups.route('/groups/<int:id>/change_name', methods=['POST'])
 def change_name(id):
@@ -242,3 +276,17 @@ def change_name(id):
     add_log(id, log_msg)
     
     return redirect(url_for('groups.control_panel', id=id))
+
+
+@groups.route('/groups/<int:id>/delete_team', methods=['POST'])
+def delete_team(id):
+    group = Group.query.get_or_404(id)
+    for member in group.members:
+        member.in_group = False
+        member.group_id = None
+        user_msg = f"თქვენი გუნდი გაუქმდა"
+        add_log(user_id=member.id, user_log=user_msg)
+        member.group = None
+    db.session.delete(group)
+    db.session.commit()
+    return redirect(url_for('groups.groups_section'))

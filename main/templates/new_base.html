@@ -8,6 +8,12 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://kit.fontawesome.com/0c7734155a.js" crossorigin="anonymous"></script>
     <style>
+        @font-face { font-family: BPG; src: url('static/fonts/bpg_nino_mtavruli_bold.ttf'); } 
+        
+        body {
+            font-family: BPG;
+        }
+        
         .navbar {
             background-color: #007bff;
         }
@@ -155,11 +161,15 @@
                             {{ current_user.firstname }} {{ current_user.lastname }}
                         </a>
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="#" style="color: black; font-style: italic;">თქვენ გაქვთ - {{ current_user.score }} ქულა</a>
-                            <a class="dropdown-item" href="#" style="color: black; font-style: italic;">ჯგუფი - {{ current_user.group.name }}</a>
+                            <a class="dropdown-item" href="#" style="color: black">🎯 {{ current_user.score }} ქულა</a>
+                            {% if current_user.in_group %}
+                                <a class="dropdown-item" href="{{ url_for('groups.group_page', id=current_user.group_id) }}" style="color: black">გუნდი - {{ current_user.group.name }}</a>
+                            {% else %}
+                                <a class="dropdown-item text-muted">გუნდი - არ ხართ გუნდში</a>
+                            {% endif %}
                             <a class="dropdown-item" href="{{ url_for('users.profile') }}" style="color: black">პროფილი</a>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="{{ url_for('users.logout') }}">Logout</a>
+                            <a class="dropdown-item" href="{{ url_for('users.logout') }}">გასვლა</a>
                         </div>
                     </li>
                     <li class="nav-item" style="text-align: center;">
@@ -171,33 +181,31 @@
                                 <div class="dropdown-content">
                                     <p style="user-select: none;">Notifications</p>
                                     <hr>
-                                    {% if notification_log.group_id %}
                                     <div class="notifications-container">
                                         <form method="POST" action="{{ url_for('groups.handle_notification') }}">
                                             {% for notification in notification_log %}
-                                            <div class="notification-entry">
-                                                <a href="{{ url_for('groups.group_page', id=notification.group_id) }}" class="notification-link">
-                                                    <p>{{ notification.log }}</p>
-                                                </a>
-                                                <div class="notification-actions">
-                                                    <input type="hidden" name="notification_id" value="{{ notification.id }}">
-                                                    <input type="hidden" name="group_id" value="{{ notification.group_id }}">
-                                                    <button type="submit" name="action" value="accept" class="btn btn-accept">Accept</button>
-                                                    <button type="submit" name="action" value="decline" class="btn btn-decline">Decline</button>
-                                                </div>
-                                            </div>
+                                                {% if notification.group_id %}
+                                                    <div class="notification-entry">
+                                                        <a href="{{ url_for('groups.group_page', id=notification.group_id) }}" class="notification-link">
+                                                            <p>{{ notification.log }}</p>
+                                                        </a>
+                                                        <div class="notification-actions">
+                                                            <input type="hidden" name="notification_id" value="{{ notification.id }}">
+                                                            <input type="hidden" name="group_id" value="{{ notification.group_id }}">
+                                                            <button type="submit" name="action" value="accept" class="btn btn-accept">Accept</button>
+                                                            <button type="submit" name="action" value="decline" class="btn btn-decline">Decline</button>
+                                                        </div>
+                                                    </div>
+                                                {% else %}
+                                                    <div class="logs-container">
+                                                        <div class="log-entry">
+                                                            <p>{{ notification.log }} - <span class="log-time">{{ notification.time }}</span></p>
+                                                        </div>
+                                                    </div>
+                                                {% endif %}
                                             {% endfor %}
                                         </form>
                                     </div>
-                                    {% else %}
-                                        <div class="logs-container">
-                                            {% for notification in notification_log %}
-                                            <div class="log-entry">
-                                                <p>{{ notification.log }} - <span class="log-time">{{ notification.time }}</span></p>
-                                            </div>
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
                                 </div>
                             </div>
                         </div>

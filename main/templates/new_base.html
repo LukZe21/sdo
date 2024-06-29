@@ -13,7 +13,7 @@
         body {
             font-family: BPG;
         }
-        
+
         .navbar {
             background-color: #007bff;
         }
@@ -142,6 +142,47 @@
             background-color: #dc3545;
             color: white;
         }
+
+        a {
+            color: rgb(22, 22, 22);   
+        }
+
+        .search-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
+        .search-form {
+            display: flex;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px 0 0 5px;
+        }
+
+        .search-button {
+            padding: 10px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .search-button:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
@@ -151,6 +192,10 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
+            <div class="search-container">
+                {% block search %}
+                {% endblock search %}
+            </div>
             <ul class="navbar-nav ml-auto">
                 {% if current_user.is_authenticated %}
                     <li class="nav-item">
@@ -167,7 +212,7 @@
                             {% else %}
                                 <a class="dropdown-item text-muted">გუნდი - არ ხართ გუნდში</a>
                             {% endif %}
-                            <a class="dropdown-item" href="{{ url_for('users.profile') }}" style="color: black">პროფილი</a>
+                            <a class="dropdown-item" href="{{ url_for('users.account') }}" style="color: black">პროფილი</a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="{{ url_for('users.logout') }}">გასვლა</a>
                         </div>
@@ -183,28 +228,33 @@
                                     <hr>
                                     <div class="notifications-container">
                                         <form method="POST" action="{{ url_for('groups.handle_notification') }}">
-                                            {% for notification in notification_log %}
-                                                {% if notification.group_id %}
-                                                    <div class="notification-entry">
-                                                        <a href="{{ url_for('groups.group_page', id=notification.group_id) }}" class="notification-link">
-                                                            <p>{{ notification.log }}</p>
-                                                        </a>
-                                                        <div class="notification-actions">
-                                                            <input type="hidden" name="notification_id" value="{{ notification.id }}">
-                                                            <input type="hidden" name="group_id" value="{{ notification.group_id }}">
-                                                            <button type="submit" name="action" value="accept" class="btn btn-accept">Accept</button>
-                                                            <button type="submit" name="action" value="decline" class="btn btn-decline">Decline</button>
+                                            {% if notification_log %}
+                                                {% for notification in notification_log[:5] %}
+                                                    {% if notification.group_id %}
+                                                        <div class="notification-entry">
+                                                            <a href="{{ url_for('groups.group_page', id=notification.group_id) }}" class="notification-link">
+                                                                <p>{{ notification.log }}</p>
+                                                            </a>
+                                                            <div class="notification-actions">
+                                                                <input type="hidden" name="notification_id" value="{{ notification.id }}">
+                                                                <input type="hidden" name="group_id" value="{{ notification.group_id }}">
+                                                                <button type="submit" name="action" value="accept" class="btn btn-accept">Accept</button>
+                                                                <button type="submit" name="action" value="decline" class="btn btn-decline">Decline</button>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                {% else %}
-                                                    <div class="logs-container">
-                                                        <div class="log-entry">
-                                                            <p>{{ notification.log }} - <span class="log-time">{{ notification.time }}</span></p>
+                                                    {% else %}
+                                                        <div class="logs-container">
+                                                            <div class="log-entry">
+                                                                <p>{{ notification.log }} - <span class="log-time">{{ notification.time }}</span></p>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                {% endif %}
-                                            {% endfor %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% else %}
+                                                <p class="text-center">No notifications yet.</p>
+                                            {% endif %}
                                         </form>
+                                        <a href="{{ url_for('users.user_log', id=current_user.id) }}" style="color:#007BFF">ნახე მეტი</a>
                                     </div>
                                 </div>
                             </div>
@@ -224,26 +274,27 @@
             </ul>
         </div>
     </nav>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-            <div class="alert alert-{{ category }}">
-                {{ message }}
-            </div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-    <div class="container">
+
+    <div class="container mt-5">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
         {% block content %}{% endblock %}
     </div>
-    <script src="{{url_for('static', filename='index.js')}}"></script>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" crossorigin="anonymous"></script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
         function toggleDropdown() {
-            var dropdownMenu = document.getElementById("dropdownMenu");
-            dropdownMenu.classList.toggle("show-dropdown");
+            var dropdown = document.getElementById("dropdownMenu");
+            dropdown.classList.toggle("show-dropdown");
         }
     </script>
 </body>

@@ -35,8 +35,6 @@ class GroupView(ModelView):
 class UpdateGroupForm(FlaskForm):
     description = TextAreaField('გუნდის შესახებ')
 
-    leader_id = StringField('ლიდერის ID', validators=[DataRequired()])
-
     group_form = StringField("Submittion Form Link", validators=[DataRequired()])
 
     picture = FileField('Update Banner', validators=[FileAllowed(['jpg', 'png'])])

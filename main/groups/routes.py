@@ -6,16 +6,12 @@ from main.models import User, Group, GroupLogs, NotificationLogs
 from main.groups.forms import UpdateGroupForm
 from main.forms import ScoreForm
 from main.groups.utils import save_picture
+from main.exp_se import search_engine
 
 groups = Blueprint('groups', __name__)
 
 def add_log(id="", log="", user_id="", user_log=""):
     if user_id != "" and user_log != "":
-        notifications = NotificationLogs.query.filter_by(user_id=user_id).all()
-        if len(notifications) >= 5:
-            for notification in notifications:
-                db.session.delete(notification)
-            db.session.commit()
         new_notification = NotificationLogs(user_id=user_id, log=user_log)
         db.session.add(new_notification)
     elif id != "" and log != "":
@@ -23,6 +19,18 @@ def add_log(id="", log="", user_id="", user_log=""):
         db.session.add(log)
     db.session.commit()
 
+@groups.route('/search_result/<string:query>', methods=['GET', 'POST'])
+def handle_search(query):
+    if query:
+        users = User.query.all()
+        groups = Group.query.all()
+        users, groups = search_engine(query, users, groups)
+        print(users, groups)
+        query = request.form.get('query')
+        if request.form.get('entity') == 'გუნდები':
+            return render_template('search.html', results=groups)
+        else:
+            return render_template('search.html', results=users)
 
 @groups.route('/handle_notification', methods=['POST'])
 def handle_notification():
@@ -70,6 +78,9 @@ def groups_section():
             groups = Group.query.filter_by(category='მარკეტინგი').all()
         elif request.form.get("category") == 'სპორტი':
             groups = Group.query.filter_by(category='სპორტი').all()
+    query = request.form.get('query')
+    if query:
+        return redirect(url_for('groups.handle_search', query=query))
     try:
         page = request.args.get('page', 1, type=int)
         notification_log = NotificationLogs.query.filter_by(user_id=current_user.id).order_by(NotificationLogs.id.desc())
@@ -87,7 +98,7 @@ def group_page(id):
     leader = User.query.filter_by(unique_id=group.leader_id).first()
     try:
         group_logs = GroupLogs.query.filter_by(group_id=current_user.group_id).order_by(GroupLogs.id.desc()).paginate(page=page, per_page=5)
-        notification_log = NotificationLogs.query.filter_by(user_id=current_user.id).order_by(NotificationLogs.id.desc()).paginate(page=page, per_page=5)
+        notification_log = NotificationLogs.query.filter_by(user_id=current_user.id).order_by(NotificationLogs.id.desc())
 
         if current_user.unique_id == group.leader_id:
             group.assign_rank()
@@ -137,9 +148,12 @@ def control_panel(id):
     except:
         None
     try:
-        if current_user.unique_id != group.leader_id:
+        if current_user.unique_id == group.leader_id or (current_user.rank == 'თანახელმძღვანელი' and current_user in group.members):
+            None
+        else:
             flash("You are not this group's leader", 'danger')
             return redirect(url_for('groups.groups_section'))
+        
     except AttributeError:
         flash("You are not this group's leader", 'danger')
         return redirect(url_for('groups.groups_section'))
@@ -149,14 +163,12 @@ def control_panel(id):
             picture_file = save_picture(form.picture.data)
             group.image_file = picture_file
         group.description = form.description.data
-        group.leader_id = form.leader_id.data
         group.group_form = form.group_form.data
         flash("Successfully updated", 'success')
         db.session.commit()
         return redirect(url_for("groups.group_page", id=id))
     elif request.method == "GET":
         form.description.data = group.description
-        form.leader_id.data = group.leader_id
         form.group_form.data = group.group_form
     image_file = url_for('static', filename='imgs/team_pics/' + group.image_file)
 
@@ -175,20 +187,19 @@ def member_control_panel(id, member_id):
     except:
         None
     try:
-        if current_user.unique_id != group.leader_id:
+        if current_user.unique_id == group.leader_id or (current_user.rank == 'თანახელმძღვანელი' and current_user in group.members):
+            None
+        else:
             flash("You are not this group's leader", 'danger')
             return redirect(url_for('groups.groups_section'))
+        
     except AttributeError:
         flash("You are not this group's leader", 'danger')
         return redirect(url_for('groups.groups_section'))
 
     if form.validate_on_submit():
-        print(user.score)
-        print("HERE")
-        print(form.add_or_subtract.data)
         if form.add_or_subtract.data == '1':
             user.score += int(form.score.data)
-            print(user.score)
             db.session.commit()
             flash(f'თქვენ დაუმატეთ {form.score.data} ქულა {user.firstname} {user.lastname} (@{user.nickname})-ს', 'success')
 
@@ -214,7 +225,7 @@ def member_control_panel(id, member_id):
                 return redirect(url_for("groups.control_panel", id=id))
             else:
                 flash(f'წევრის ქულას 0-ზე დაბლა ვერ ჩამოიყვანთ.', 'danger')
-    return render_template('personal_score_panel.html', user=user, form=form, group_logs=group_logs, notification_log=notification_log)
+    return render_template('personal_score_panel.html', user=user, form=form, group_logs=group_logs, notification_log=notification_log, group=group)
 
 @groups.route('/groups/<int:id>/add_member', methods=['POST'])
 def add_member(id):
@@ -222,7 +233,9 @@ def add_member(id):
     user_id = request.form.get('ID')
     print(user_id)
     user = User.query.filter_by(unique_id=user_id).first()
-    if len(group.members) >= 10:
+    if not user:
+        flash("Please enter valid user ID", 'danger')
+    elif len(group.members) >= 10:
         flash('Your team is full', 'danger')
     elif user.in_group:
         flash(f"{user.firstname} {user.lastname} (@{user.nickname}) is already in a team", 'danger')
@@ -255,13 +268,23 @@ def make_leader(member_id):
     user = User.query.get(member_id)
     group = Group.query.get(user.group_id)
     previous_leader = User.query.filter_by(unique_id=group.leader_id).first()
-    previous_leader.rank = 'წევრი'
+    previous_leader.rank = 'თანახელმძღვანელი'
     user.rank = 'ხელმძღვანელი'
     group.leader_id = user.unique_id
-    add_log(user_id=user.id, user_log=f"თქვენ ხართ გუნდის ახალი ხელმძღვანელი!")
+    add_log(user_id=user.id, user_log=f"თქვენ გახდით გუნდის ახალი ხელმძღვანელი!")
     db.session.commit()
     
     return redirect(url_for('groups.group_page', id=group.id))
+
+@groups.route('/groups/<int:member_id>/make_member_coleader', methods=['POST'])
+def make_coleader(member_id):
+    user = User.query.get(member_id)
+    group = Group.query.get(user.group_id)
+    user.rank = 'თანახელმძღვანელი'
+    add_log(user_id=user.id, user_log=f"თქვენ გახდით გუნდის თანახელმძღვანელი")
+    db.session.commit()
+
+    return redirect(url_for('groups.control_panel', id=group.id))
 
 
 @groups.route('/groups/<int:id>/change_name', methods=['POST'])

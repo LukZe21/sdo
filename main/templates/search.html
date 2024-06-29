@@ -1,0 +1,236 @@
+{% extends "new_base.html" %}
+{% block content %}
+<style>
+    body {
+        font-family: 'Helvetica Neue', Arial, sans-serif;
+        background-color: #f4f6f8;
+        color: #333;
+    }   
+
+    .container {
+        max-width: 1200px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-section {
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .form-section button {
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .form-section button:hover {
+        background-color: #0056b3;
+        transform: scale(1.05);
+    }
+
+    .button {
+        padding: 10px 20px;
+        margin: 5px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .button:hover {
+        background-color: #0056b3;
+        transform: scale(1.05);
+    }
+
+    .button.active {
+        background-color: #0056b3;
+    }
+
+    .search-results {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        padding: 20px;
+    }
+
+    .profile {
+        display: flex;
+        align-items: center;
+        background-color: #fff;
+        border-radius: 10px;
+        padding: 15px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .profile img {
+        border-radius: 50%;
+        margin-right: 15px;
+    }
+
+    .profile:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .group {
+        background-color: #ffffff;
+        width: 400px;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .group img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: 0;
+        opacity: 0.7;
+    }
+
+    .group-content {
+        position: relative;
+        z-index: 1;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 10px;
+        border-radius: 10px;
+    }
+
+    .group:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .group-name {
+        font-size: 24px;
+        margin-bottom: 10px;
+        color: #333;
+        font-weight: bold;
+    }
+
+    .group-description {
+        margin-bottom: 10px;
+        color: #666;
+        font-size: 16px;
+    }
+
+    .group-category, .group-score, .group-members {
+        font-style: italic;
+        margin-bottom: 5px;
+        color: #999;
+        font-size: 14px;
+    }
+
+    .group:first-child {
+        grid-column: span 2;
+    }
+
+    @media (max-width: 767px) {
+        .group {
+            padding: 15px;
+        }
+
+        .group-name {
+            font-size: 20px;
+        }
+
+        .group-description, .group-category, .group-members, .group-score {
+            font-size: 14px;
+        }
+
+        .group:first-child {
+            grid-column: span 1;
+        }
+    }
+</style>
+
+<div class="form-section">
+    <form method="POST">
+        <button name="entity" value="ადამიანები" type="submit" class="button {% if request.form.get('entity') == 'ადამიანები' %}active{% endif %}">ადამიანები</button>
+        <button name="entity" value="გუნდები" type="submit" class="button {% if request.form.get('entity') == 'გუნდები' %}active{% endif %}">გუნდები</button>
+    </form>
+</div>
+
+<div class="search-results" style="margin: auto;">
+    {% for result in results %}
+        {% if result.firstname %}
+            <a href="{{ url_for('users.profile', unique_id=result.unique_id) }}"><div class="profile">
+                <img src="{{ url_for('static', filename='imgs/profile_pics/' + result.image_file) }}" alt="Profile Picture" style="height: 60px; width: 60px;">
+                <div>
+                    <p> {{ result.firstname }} {{ result.lastname }} </p>
+                    <p>@{{ result.nickname }}</p>
+                    <p>🎫 ID - {{ result.unique_id }}</p>
+                </div>
+            </div></a>
+        {% elif result.name %}
+        <a href="{{ url_for('groups.group_page', id=result.id) }}"><div class="group">
+                <img src="{{ url_for('static', filename='imgs/team_pics/' + result.image_file) }}" alt="{{ result.name }}">
+                <div class="group-content">
+                    <div class="group-name">{{ result.name }}</div>
+                    <div class="group-category">{{ result.category }}</div>
+                    <div class="group-score">Score: {{ result.score }}</div>
+                    <div class="group-members">Members: {{ result.members|length }}</div>
+                </div>
+            </div>
+        {% endif %}
+    {% endfor %}
+</div>
+
+{% endblock content %}
+
+{% block search %}
+<form action="" method="POST" class="search-form">
+    <input type="text" name="query" placeholder="მოძებნე ადამიანები & გუნდები..." id="search_input" class="search-input">
+    <button type="submit" class="search-button"><i class="fas fa-search"></i></button>
+</form>
+<style>
+    .search-form {
+        display: flex;
+        width: 80%;
+        max-width: 600px;
+    }
+
+    .search-input {
+        flex: 1;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 5px 0 0 5px;
+    }
+
+    .search-button {
+        padding: 10px;
+        font-size: 16px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 0 5px 5px 0;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .search-button:hover {
+        background-color: #0056b3;
+        transform: scale(1.05);
+    }
+</style>
+{% endblock search %}

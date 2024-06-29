@@ -28,6 +28,9 @@ class RegisterForm(FlaskForm):
     confirm_password = PasswordField('გაიმეორეთ პაროლი',
                                     validators=[DataRequired(), EqualTo('password')])
     
+    facebook_link = StringField('შენი Facebook პროფილის ლინკი', 
+                                validators=[DataRequired()])
+    
     submit = SubmitField('რეგისტრაცია')
 
     def validate_email(self, email):

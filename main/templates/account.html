@@ -1,0 +1,130 @@
+{% extends "new_base.html" %}
+{% block content %}
+<style>
+    body{
+        background-color: #f1f1f1;
+    }
+    .account-img {
+        border: 2px solid #ddd; /* Optional: Adds a border around the profile picture */
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .fa-facebook-f {
+        font-size: 1.5rem;
+        color: #3b5998; /* Facebook blue color */
+        margin-top: 1rem; /* Space between profile picture and icon */
+    }
+</style>
+<div class="content-section">
+    <div class="media align-items-start">
+        <div class="text-center">
+            <img class="rounded-circle account-img" src="{{ image_file }}" alt="Profile Picture" style="width: 200px; height: 200px;">
+            <!-- Facebook icon below the profile picture -->
+            <a href="{{ current_user.facebook_link }}" target="_blank" class="d-block mt-3">
+                <i class="fa-brands fa-facebook-f"></i>
+            </a>
+        </div>
+        <div class="media-body ml-3">
+            <h2 class="account-heading">{{ current_user.firstname }} {{ current_user.lastname }}</h2>
+            <p class="text-muted" style="font-size: smaller;">@{{ current_user.nickname }}</p>
+            <p class="text-muted">🎫 ID - {{ current_user.unique_id }}</p>
+            <p class="text-muted">🎯 პერსონალური ქულა - {{ current_user.score }}</p>
+            <br>
+            <h4 class="border-bottom">გუნდის ინფორმაცია</h4>
+            {% if current_user.in_group %}    
+                <a href="{{ url_for('groups.group_page', id=current_user.group_id) }}" class="text-muted">
+                    <p>🤝 გუნდი - '{{ current_user.group.name}}'</p>
+                </a>
+                <p class="text-muted">🎖️ წოდება - {{ current_user.rank }}</p>
+                <p class="text-muted">🎯 გუნდის ქულა - {{ current_user.group.score }}</p>
+            {% else %}
+                <h4 class="text-muted">ჯერჯერობით არ არის გუნდში</h4>
+            {% endif %}
+        </div>
+    </div>
+    <form method="POST" action="" enctype="multipart/form-data" class="mt-4">
+        {{ form.hidden_tag() }}
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4">პროფილის ინფორმაცია</legend>
+            <div class="form-row">
+                <div class="col-md-6 col-sm-12 mb-3">
+                    {{ form.firstname.label(class="form-control-label") }}
+                    {% if form.firstname.errors %}
+                        {{ form.firstname(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.firstname.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.firstname(class="form-control") }}
+                    {% endif %}
+                </div>
+                <div class="col-md-6 col-sm-12 mb-3">
+                    {{ form.lastname.label(class="form-control-label") }}
+                    {% if form.lastname.errors %}
+                        {{ form.lastname(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.lastname.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.lastname(class="form-control") }}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="col-md-6 col-sm-12 mb-3">
+                    {{ form.nickname.label(class="form-control-label") }}
+                    {% if form.nickname.errors %}
+                        {{ form.nickname(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.nickname.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.nickname(class="form-control") }}
+                    {% endif %}
+                </div>
+                <div class="col-md-6 col-sm-12 mb-3">
+                    {{ form.email.label(class="form-control-label") }}
+                    {% if form.email.errors %}
+                        {{ form.email(class="form-control is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.email.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.email(class="form-control") }}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="form-group">
+                {{ form.picture.label(class="form-control-label") }}
+                {{ form.picture(class="form-control-file") }}
+                {% if form.picture.errors %}
+                    <div class="text-danger mt-2">
+                        {% for error in form.picture.errors %}
+                            <span>{{ error }}</span><br>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </fieldset>
+        <div class="form-group">
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+    </form>
+</div>
+{% endblock content %}

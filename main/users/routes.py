@@ -21,7 +21,8 @@ def register():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         token = secrets.token_hex(16)
         unique_id = secrets.token_hex(8)
-        user = User(unique_id=unique_id, firstname=form.firstname.data, lastname=form.lastname.data, nickname=form.nickname.data, email=form.email.data, password=hashed_password, activation_token=token)
+        user = User(unique_id=unique_id, firstname=form.firstname.data, lastname=form.lastname.data, nickname=form.nickname.data,
+                    facebook_link=form.facebook_link.data, email=form.email.data, password=hashed_password, activation_token=token)
         db.session.add(user)
         db.session.commit()
 
@@ -74,10 +75,10 @@ def activate(token):
         flash("Invalid or expired token", 'danger')
         return redirect(url_for('users.register'))
 
-@users.route("/profile", methods=['GET', 'POST'])
+@users.route("/account", methods=['GET', 'POST'])
 @login_required
-def profile():
-    notification_log = NotificationLogs.query.filter_by(user_id=current_user.id)
+def account():
+    notification_log = NotificationLogs.query.filter_by(user_id=current_user.id).order_by(NotificationLogs.id.desc())
     page = request.args.get('page', 1, type=int)
     group_logs = GroupLogs.query.filter_by(group_id=current_user.group_id).order_by(GroupLogs.id.desc()).paginate(page=page, per_page=5)
     
@@ -92,7 +93,7 @@ def profile():
         current_user.nickname = form.nickname.data
         db.session.commit()
         flash("Your account has been updated!", 'success')
-        return redirect(url_for("users.profile"))
+        return redirect(url_for("users.account"))
     elif request.method == "GET":
         form.firstname.data = current_user.firstname
         form.lastname.data = current_user.lastname
@@ -100,7 +101,7 @@ def profile():
         form.email.data = current_user.email
     image_file = url_for('static', filename='imgs/profile_pics/' + current_user.image_file)
 
-    return render_template('profile.html', notification_log=notification_log, group_logs=group_logs,
+    return render_template('account.html', notification_log=notification_log, group_logs=group_logs,
                            image_file=image_file, form=form)
 
 @users.route("/logout")
@@ -109,3 +110,24 @@ def logout():
     logout_user()
     flash('Successfully logged out', 'success')
     return redirect(url_for('groups.groups_section'))
+
+
+@users.route('/all_notifications/<int:id>', methods=['GET', 'POST'])
+def user_log(id):
+    page = request.args.get('page', 1, type=int)
+    notifications = NotificationLogs.query.filter_by(user_id=id).order_by(NotificationLogs.id.desc()).paginate(page=page, per_page=5)
+    if request.method == 'POST':
+        notifications = NotificationLogs.query.filter_by(user_id=id).all()
+        for notification in notifications:
+            db.session.delete(notification)
+        db.session.commit()
+        flash('ყველა შეტყობინება წაიშალა', 'success')
+
+    return render_template('user_log_page.html', notifications_log=notifications)
+
+
+@users.route('/profile/<string:unique_id>', methods=['GET', 'POST'])
+def profile(unique_id):
+    user = User.query.filter_by(unique_id=unique_id).first()
+
+    return render_template('profile.html', user=user)

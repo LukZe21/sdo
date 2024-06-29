@@ -72,12 +72,20 @@
         background-color: #28a745;
     }
 
+    .yellow button {
+        background-color: rgb(196, 196, 66);
+    }
+
     .form-inline button:hover {
         background-color: #c0392b;
     }
 
     .green button:hover {
         background-color: #4be26e;
+    }
+
+    .yellow button:hover {
+        background-color: rgb(240, 240, 53);
     }
 
 
@@ -141,25 +149,53 @@
         <div class="media-body">
             <h2 class="account-heading">{{ user.firstname }} {{ user.lastname }}</h2>
             <p class="text-muted">@{{ user.nickname }}</p>
-            <p class="text-muted">ID - {{ user.unique_id }}</p>
-            <p class="text-muted">ქულა - {{ user.score }}</p>
+            <p class="text-muted">🎫 ID - {{ user.unique_id }}</p>
+            <p class="text-muted">🎯 პერსონალური ქულა - {{ user.score }}</p>
         </div>
     </div>
-    <hr>
+    {% if current_user.unique_id == group.leader_id %}
     <form action="{{ url_for('groups.remove_member', member_id=user.id) }}" method="POST" class="form-inline">
         <button type="submit">წევრის გაგდება</button>
     </form>
     <hr>
-    <div class="form-inline green">
-        <button data-toggle="modal" data-target="#assignModal" type="submit">დანიშნე ხელმძღვანელად</button>
-    </div>
+        <div class="form-inline green">
+            <button data-toggle="modal" data-target="#assignModal" type="submit">დანიშნე ხელმძღვანელად</button>
+        </div>
+
+        <div class="form-inline yellow">
+            <button data-toggle="modal" data-target="#assign1Modal" type="submit">დანიშნე თანახელმძღვანელად</button>
+        </div>
+    {% endif %}
     <hr>
+    <!-- Modal -->
+    <div class="modal fade" id="assign1Modal" tabindex="-1" role="dialog" aria-labelledby="assign1ModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title" id="assign1ModalLabel">ამ ქმედების განხორციელებით შენ ამ წევრს უფლებას აძლევ ხელმძღვანელის თითქმის ყველა უფლება ქონდეს</h6>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-footer">
+                    <!-- Close button -->
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        
+                    <!-- Form for deletion -->
+                    <form action="{{ url_for('groups.make_coleader', member_id=user.id) }}" method="POST">
+                        <input class="btn btn-danger" type="submit" value="ვეთანხმები, გახადე თანახელმძღვანელი">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal -->
     <div class="modal fade" id="assignModal" tabindex="-1" role="dialog" aria-labelledby="assignModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h6 class="modal-title" id="assignModalLabel">ამ ქმედების განხორციელებით შენ ჩამოგერთმევა ხელმძღვანელის ყველანაირი უფლებები</h6>
+                    <h6 class="modal-title" id="assignModalLabel">ამ ქმედების განხორციელებით შენ გახდები თანახელმძღვანელი და ჩამოგერთმევა ხელმძღვანელის სრული უფლებები</h6>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>

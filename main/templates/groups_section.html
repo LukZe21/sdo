@@ -230,3 +230,41 @@
     </div>
 </div>
 {% endblock %}
+
+{% block search %}
+<form action="" method="POST" class="search-form">
+    <input type="text" name="query" placeholder="მოძებნე ადამიანები & გუნდები..." id="search_input" class="search-input">
+    <button type="submit" class="search-button"><i class="fas fa-search"></i></button>
+</form>
+<style>
+    .search-form {
+        display: flex;
+        width: 100%;
+        max-width: 600px;
+    }
+
+    .search-input {
+        flex: 1;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 5px 0 0 5px;
+    }
+
+    .search-button {
+        padding: 10px;
+        font-size: 16px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 0 5px 5px 0;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .search-button:hover {
+        background-color: #0056b3;
+        transform: scale(1.05);
+    }
+</style>
+{% endblock search %}

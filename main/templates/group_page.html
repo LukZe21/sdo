@@ -1,8 +1,10 @@
 {% extends "new_base.html" %}
 {% block content %}
     <style>
+        @font-face { font-family: BPG; src: url('static/fonts/bpg_nino_mtavruli_bold.ttf'); } 
+
         body {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-family: BPG;
             background-color: #f1f1f1;
             margin: 0;
             padding: 0;
@@ -135,7 +137,7 @@
 
         .group-image {
             width: 100%;
-            height: auto;
+            height: 315px;
             border-radius: 10px;
             margin-bottom: 20px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -160,8 +162,9 @@
         <img src="{{ url_for('static', filename='imgs/team_pics/' + group.image_file) }}" alt="{{ group.name }}" class="group-image">
         
         <h1>{{ group.name }}</h1>
-        <p>Group Score: {{ group.score }}</p>
-        <p>Leader: {{ leader.firstname }} {{ leader.lastname }}</p>
+        <br>
+        <p>გუნდის ქულა - {{ group.score }}</p>
+        <p>გუნდის ხელმძღვანელი - {{ leader.firstname }} {{ leader.lastname }}</p>
 
         <h2>Members:</h2>
         <div class="table-responsive">
@@ -179,8 +182,10 @@
                         <tr>
                             <td>{{ member.unique_id }}</td>
                             <td>
-                                <img src="{{ url_for('static', filename='imgs/profile_pics/' + member.image_file) }}" alt="Profile Picture" class="member-profile-pic">
-                                {{ member.firstname }} {{ member.lastname }} <span class="text-muted" style="font-size: smaller;">@{{ member.nickname }}</span>
+                                <a href="{{ url_for('users.profile', unique_id=member.unique_id) }}">
+                                    <img src="{{ url_for('static', filename='imgs/profile_pics/' + member.image_file) }}" alt="Profile Picture" class="member-profile-pic">
+                                    {{ member.firstname }} {{ member.lastname }} <span class="text-muted" style="font-size: smaller;">@{{ member.nickname }}</span>
+                                </a>
                             </td>
                             <td>{{ member.rank }}</td>
                             <td>{{ member.score }}</td>
@@ -207,10 +212,12 @@
         {% if current_user.in_group and current_user.group.id == group.id and current_user.unique_id != leader.unique_id %}
             <a href="{{ url_for('groups.leave_group', id=group.id) }}" class="btn btn-danger">Leave Group</a>
         {% endif %}
-
-        {% if current_user.unique_id == leader.unique_id %}
-        <a href="{{ url_for('groups.control_panel', id=group.id) }}" class="control-panel-link">Control Panel</a>
-    {% endif %}
+        
+        {% if current_user.group %}
+            {% if current_user.in_group and (current_user.unique_id == leader.unique_id) or (current_user.group.id == group.id and current_user.rank == 'თანახელმძღვანელი') %}
+                <a href="{{ url_for('groups.control_panel', id=group.id) }}" class="control-panel-link">Control Panel</a>
+            {% endif %}
+        {% endif %}
     </div>
 
     {% if current_user.group_id == group.id %}

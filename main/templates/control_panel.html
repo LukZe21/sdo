@@ -205,7 +205,7 @@
         <button type="submit">გაგზავნა</button>
     </form>
     <hr>
-    <h2>Members:</h2>
+    <h2>Members</h2>
     <div class="table-responsive">
         <table class="members-table">
             <thead>
@@ -234,12 +234,15 @@
         </table>
     </div>
     <hr>
+
+    {% if current_user.unique_id == group.leader_id %}
     <h2>საშიში ზონა</h2>
 
     <!-- Button trigger modal -->
     <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">
         წაშალე გუნდი
     </button>
+    {% endif %}
     
     <!-- Modal -->
     <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">

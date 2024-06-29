@@ -22,6 +22,7 @@ class User(db.Model, UserMixin):
     is_active = db.Column(db.Boolean, default=False)
     activation_token = db.Column(db.String(32), nullable=True)
     image_file = db.Column(db.String(100), nullable=False, default='default.png')
+    facebook_link = db.Column(db.String(300), nullable=False)
 
     in_group = db.Column(db.Boolean, default=False)
     group_id = db.Column(db.Integer, db.ForeignKey('group.id'), nullable=True)

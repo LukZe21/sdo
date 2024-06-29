@@ -11,3 +11,4 @@ Flask-admin
 Flask-bcrypt
 pillow
 Flask-SocketIO
+numpy

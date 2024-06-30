@@ -220,7 +220,9 @@ def member_control_panel(id, member_id):
 
                 log_msg = f"{user.firstname} {user.lastname} (@{user.nickname})-ს ჩამოეჭრა {form.score.data} ქულა.\n\n\n მიზეზი: {form.description.data}"
 
-                add_log(id, log_msg)
+                new_log= f"თქვენ ჩამოგეჭრათ {form.score.data} ქულა.\n მიზეზი: {form.description.data}"
+                user_id = user.id
+                add_log(id, log_msg, user_id, new_log)
 
                 return redirect(url_for("groups.control_panel", id=id))
             else:
@@ -234,13 +236,13 @@ def add_member(id):
     print(user_id)
     user = User.query.filter_by(unique_id=user_id).first()
     if not user:
-        flash("Please enter valid user ID", 'danger')
-    elif len(group.members) >= 10:
-        flash('Your team is full', 'danger')
+        flash("მომხმარებლის ID არასწორია", 'danger')
+    elif len(group.members) >= 5:
+        flash('თქვენი გუნდი სავსეა', 'danger')
     elif user.in_group:
         flash(f"{user.firstname} {user.lastname} (@{user.nickname}) is already in a team", 'danger')
     elif not user.in_group:
-        flash(f"Invitation has been successfully sent to {user.firstname} {user.lastname} (@{user.nickname}).", "success")
+        flash(f"მოწვევა წარმატებით გაეგზავნა {user.firstname} {user.lastname} (@{user.nickname}).", "success")
         new_notification = NotificationLogs(user_id=user.id, group_id=group.id, log=f"{group.name}-მა მოგიწვიათ თავიანთ გუნდში")
         db.session.add(new_notification)
         db.session.commit()
@@ -259,7 +261,7 @@ def remove_member(member_id):
     
     user.group_id = None
     user.group = None
-    flash(f'Successfully removed {user.firstname} {user.lastname} (@{user.nickname}) from the group', 'warning')    
+    flash(f'წარმატებით წაიშალა {user.firstname} {user.lastname} (@{user.nickname}) გუნდიდან', 'warning')    
     return redirect(url_for('groups.control_panel', id=group_id))
 
 
@@ -271,7 +273,8 @@ def make_leader(member_id):
     previous_leader.rank = 'თანახელმძღვანელი'
     user.rank = 'ხელმძღვანელი'
     group.leader_id = user.unique_id
-    add_log(user_id=user.id, user_log=f"თქვენ გახდით გუნდის ახალი ხელმძღვანელი!")
+    log_msg = f"{user.firstname} {user.lastname} (@{user.nickname}) გახდა გუნდის ახალი *ხელმძღვანელი*"
+    add_log(id=group.id, log=log_msg, user_id=user.id, user_log=f"თქვენ გახდით გუნდის ახალი ხელმძღვანელი!")
     db.session.commit()
     
     return redirect(url_for('groups.group_page', id=group.id))
@@ -281,24 +284,11 @@ def make_coleader(member_id):
     user = User.query.get(member_id)
     group = Group.query.get(user.group_id)
     user.rank = 'თანახელმძღვანელი'
-    add_log(user_id=user.id, user_log=f"თქვენ გახდით გუნდის თანახელმძღვანელი")
+    log_msg = f"{user.firstname} {user.lastname} (@{user.nickname}) გახდა გუნდის ახალი *თანახელმძღვანელი*"
+    add_log(id=group.id, log=log_msg, user_id=user.id, user_log=f"თქვენ გახდით გუნდის თანახელმძღვანელი")
     db.session.commit()
 
     return redirect(url_for('groups.control_panel', id=group.id))
-
-
-@groups.route('/groups/<int:id>/change_name', methods=['POST'])
-def change_name(id):
-    group = Group.query.filter_by(id=id).first()
-    new_name = request.form.get('group_name')
-    old_name = group.name
-    group.name = new_name
-    
-    log_msg = f"ჯგუფის სახელი შეიცვალა: {old_name} (ძველი) -> {group.name} (ახალი)"
-
-    add_log(id, log_msg)
-    
-    return redirect(url_for('groups.control_panel', id=id))
 
 
 @groups.route('/groups/<int:id>/delete_team', methods=['POST'])

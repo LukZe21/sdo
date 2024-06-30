@@ -49,7 +49,7 @@ class UpdateAccountForm(FlaskForm):
     email = EmailField('მაილი',
                        validators=[DataRequired()])
     
-    picture = FileField('Update Profile Picture', validators=[FileAllowed(['jpg', 'png'])])
+    picture = FileField('Update Profile Picture')
 
     submit = SubmitField('განახლება')
 

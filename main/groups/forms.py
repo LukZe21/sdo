@@ -37,7 +37,7 @@ class UpdateGroupForm(FlaskForm):
 
     group_form = StringField("Submittion Form Link", validators=[DataRequired()])
 
-    picture = FileField('Update Banner', validators=[FileAllowed(['jpg', 'png'])])
+    picture = FileField('Update Banner')
 
 
     submit = SubmitField("Update")

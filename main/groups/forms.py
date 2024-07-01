@@ -8,11 +8,11 @@ class GroupForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])
     description = StringField('Description')
     category = SelectField('Category', choices=[
-        ('მარკეტინგი', 'მარკეტინგი'), 
-        ('არაფორმალური განათლება', 'არაფორმალური განათლება'), 
-        ('სპორტი', 'სპორტი'), 
-        ('ტექნოლოგიები & ინოვაციები', 'ტექნოლოგიები & ინოვაციები')
-    ])
+                                        ('სპორტის კულტურის და ახალგზარდობის სამსახური', 'სპორტის კულტურის და ახალგზარდობის სამსახური'),
+                                        ('არაფორმალური განათლება', 'არაფორმალური განათლება'),
+                                        ('ტექნოლოგიები და ინოვაციები', 'ტექნოლოგიები და ინოვაციები'),
+                                        ('PR და მარკეტინგი', 'PR და მარკეტინგი')
+                                    ])
     leader_id = StringField('ლიდერის ID', validators=[DataRequired()])
 
     group_form = StringField("Submittion Form Link", validators=[DataRequired()])

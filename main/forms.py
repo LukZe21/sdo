@@ -23,3 +23,30 @@ class ScoreForm(FlaskForm):
                                 validators=[DataRequired(), Length(min=20, max=100)])
     
     submit = SubmitField('Submit')
+
+
+class MemberForm(FlaskForm):
+    firstname = StringField('სახელი', validators=[DataRequired()])
+    lastname = StringField('გვარი', validators=[DataRequired()])
+    email = EmailField('ელფოსტა', validators=[DataRequired()])
+    why_join = TextAreaField('რატომ გინდათ ამ პროექტში მონაწილეობა')
+    # category = SelectField('სამსახური', choices=[
+                                    #     ('სპორტის კულტურის და ახალგზარდობის სამსახური', 'სპორტის კულტურის და ახალგზარდობის სამსახური'),
+                                    #     ('არაფორმალური განათლება', 'არაფორმალური განათლება'),
+                                    #     ('ტექნოლოგიები და ინოვაციები', 'ტექნოლოგიები და ინოვაციები'),
+                                    #     ('PR და მარკეტინგი', 'PR და მარკეტინგი')
+                                    # ])
+    
+    team = SelectField('აირჩიე სამუშაო გუნდი', choices=[], coerce=int)  # Dropdown for teams
+    facebook_link = StringField('შენი Facebook პროფილის ლინკი', validators=[DataRequired()])
+    submit = SubmitField("გააგზავნე ანკეტა")
+
+
+class LeaderForm(FlaskForm):
+    firstname = StringField('სახელი', validators=[DataRequired()])
+    lastname = StringField('გვარი', validators=[DataRequired()])
+    email = EmailField('ელფოსტა', validators=[DataRequired()])
+    why_join = TextAreaField('რატომ გინდათ ამ პროექტში მონაწილეობა')
+    category = SelectField('სამსახური', choices=[('სპორტის კულტურის და ახალგზარდობის სამსახური', 'არაფორმალური განათლება', 'ტექნოლოგიები და ინოვაციები', 'PR და მარკეტინგი')])
+    team_name = StringField('გუნდის სახელი', validators=[DataRequired()])
+    submit = SubmitField("გააგზავნე ანკეტა")

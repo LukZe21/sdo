@@ -1,7 +1,7 @@
 from flask import Blueprint
-from flask_login import current_user
+from flask_login import current_user, login_required
 from flask import Blueprint, render_template, redirect, url_for, flash, request
-from main import db
+from main import db, csrf
 from main.models import User, Group, GroupLogs, NotificationLogs
 from main.groups.forms import UpdateGroupForm
 from main.forms import ScoreForm
@@ -19,6 +19,7 @@ def add_log(id="", log="", user_id="", user_log=""):
         db.session.add(log)
     db.session.commit()
 
+@csrf.exempt
 @groups.route('/search_result/<string:query>', methods=['GET', 'POST'])
 def handle_search(query):
     if query:
@@ -64,8 +65,12 @@ def handle_notification():
     
     return redirect(url_for('groups.groups_section'))
 
+
+@csrf.exempt
 @groups.route('/groups', methods=['POST', 'GET'])
 def groups_section():
+    if not current_user.is_authenticated:
+        return redirect(url_for('users.login'))
     groups = Group.query.all()
     if request.method == "POST":
         if request.form.get("category") == 'ყველა':
@@ -91,8 +96,11 @@ def groups_section():
         None
     return render_template('groups_section.html', groups=groups)
 
+@csrf.exempt
 @groups.route('/groups/<int:id>', methods=['POST', 'GET'])
 def group_page(id):
+    if not current_user.is_authenticated:
+        return redirect(url_for('users.login'))
     group = Group.query.filter_by(id=id).first()
     page = request.args.get('page', 1, type=int)
     leader = User.query.filter_by(unique_id=group.leader_id).first()
@@ -120,8 +128,11 @@ def group_page(id):
     #         return redirect(url_for('users.login'))
     return render_template('group_page.html', group=group, leader=leader, group_logs=group_logs)
 
+@csrf.exempt
 @groups.route('/leave_group/<int:id>', methods=['POST', 'GET'])
 def leave_group(id):
+    if not current_user.is_authenticated:
+        return redirect(url_for('users.login'))
     group = Group.query.filter_by(id=id).first()
     user = User.query.get(current_user.id)
     if user in group.members:
@@ -136,8 +147,11 @@ def leave_group(id):
     add_log(id, log_msg)
     return redirect(url_for('groups.group_page', id=id))
 
+@csrf.exempt
 @groups.route('/groups/<int:id>/control_panel', methods=['POST', 'GET'])
 def control_panel(id):
+    if not current_user.is_authenticated:
+        return redirect(url_for('users.login'))
     page = request.args.get('page', 1, type=int)
     group = Group.query.filter_by(id=id).first()
     form = UpdateGroupForm()
@@ -175,8 +189,11 @@ def control_panel(id):
     return render_template('control_panel.html', group=group, group_logs=group_logs, notification_log=notification_Log,
                            form=form, image_file=image_file)
 
+@csrf.exempt
 @groups.route('/groups/<int:id>/member/<int:member_id>', methods=['POST', 'GET'])
 def member_control_panel(id, member_id):
+    if not current_user.is_authenticated:
+        return redirect(url_for('users.login'))
     form = ScoreForm()
     user = User.query.get(member_id)
     group = Group.query.filter_by(id=id).first()
@@ -229,6 +246,7 @@ def member_control_panel(id, member_id):
                 flash(f'წევრის ქულას 0-ზე დაბლა ვერ ჩამოიყვანთ.', 'danger')
     return render_template('personal_score_panel.html', user=user, form=form, group_logs=group_logs, notification_log=notification_log, group=group)
 
+@csrf.exempt
 @groups.route('/groups/<int:id>/add_member', methods=['POST'])
 def add_member(id):
     group = Group.query.filter_by(id=id).first()
@@ -249,6 +267,7 @@ def add_member(id):
 
     return redirect(url_for('groups.control_panel', id=id))
 
+@csrf.exempt
 @groups.route('/remove_member/<int:member_id>', methods=['POST'])
 def remove_member(member_id):
     user = User.query.get(member_id)
@@ -264,7 +283,7 @@ def remove_member(member_id):
     flash(f'წარმატებით წაიშალა {user.firstname} {user.lastname} (@{user.nickname}) გუნდიდან', 'warning')    
     return redirect(url_for('groups.control_panel', id=group_id))
 
-
+@csrf.exempt
 @groups.route('/groups/<int:member_id>/make_member_leader', methods=['POST'])
 def make_leader(member_id):
     user = User.query.get(member_id)
@@ -279,6 +298,7 @@ def make_leader(member_id):
     
     return redirect(url_for('groups.group_page', id=group.id))
 
+@csrf.exempt
 @groups.route('/groups/<int:member_id>/make_member_coleader', methods=['POST'])
 def make_coleader(member_id):
     user = User.query.get(member_id)
@@ -290,7 +310,7 @@ def make_coleader(member_id):
 
     return redirect(url_for('groups.control_panel', id=group.id))
 
-
+@csrf.exempt
 @groups.route('/groups/<int:id>/delete_team', methods=['POST'])
 def delete_team(id):
     group = Group.query.get_or_404(id)

@@ -1,0 +1,13 @@
+{% extends 'new_base.html' %}
+{% block content %}
+
+<p>სრული სახელი - {{ form.firstname }} {{ form.lastname }}</p>
+<p>არჩეული სამსახური - {{form.category}}</p>
+<p>რატომ უნდა შემოსვლა: {{ form.why_join }}</p>
+
+<form method="POST">
+    <button name="entity" value="ACCEPT" type="submit">მიღება</button>
+    <button name="entity" value="DECLINE" type="submit">უარი</button>
+</form>
+
+{% endblock content %}

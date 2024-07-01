@@ -6,6 +6,7 @@ from flask_login import LoginManager
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
 from flask_admin import Admin
+from flask_wtf.csrf import CSRFProtect
 
 app = Flask(__name__)
 CORS(app)
@@ -22,6 +23,7 @@ app.config['MAIL_USERNAME'] = 'ldzotsenidze4@gmail.com'
 app.config['MAIL_PASSWORD'] = 'rcom lgpg furx fkbz'
 
 mail = Mail(app)
+csrf = CSRFProtect(app)
 serializer = URLSafeSerializer(app.config['SECRET_KEY'])
 
 db = SQLAlchemy(app)

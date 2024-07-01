@@ -19,8 +19,6 @@ class User(db.Model, UserMixin):
     rank = db.Column(db.String(50), nullable=False, default='წევრი')
     score = db.Column(db.Integer, nullable=False, default=0)
     password = db.Column(db.String(60), nullable=False)
-    is_active = db.Column(db.Boolean, default=False)
-    activation_token = db.Column(db.String(32), nullable=True)
     image_file = db.Column(db.String(100), nullable=False, default='default.png')
     facebook_link = db.Column(db.String(300), nullable=False)
 
@@ -108,3 +106,13 @@ class NotificationLogs(db.Model):
     group_id = db.Column(db.Integer)
     time = db.Column(db.String(20), default=default_time)
     log = db.Column(db.String(1000))
+
+
+class FormData(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    firstname = db.Column(db.String(30), nullable=False)
+    lastname = db.Column(db.String(30), nullable=False)
+    email = db.Column(db.String(100), nullable=False)
+    why_join = db.Column(db.String(1000), nullable=False)
+    category = db.Column(db.String(30), nullable=False)
+    facebook_link = db.Column(db.String(100), nullable=False)
